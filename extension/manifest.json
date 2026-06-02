@@ -1,0 +1,16 @@
+{
+  "manifest_version": 3,
+  "name": "RechercheImmo — Sauvegarde d'annonces",
+  "version": "1.0.0",
+  "description": "Sauvegarde une annonce immobilière (photos + infos) avec une note expliquant ce qui te plaît, vers ton site RechercheImmo.",
+  "permissions": ["activeTab", "scripting", "storage"],
+  "host_permissions": ["http://*/*", "https://*/*"],
+  "action": {
+    "default_popup": "popup.html",
+    "default_title": "Sauvegarder cette annonce"
+  },
+  "options_ui": {
+    "page": "options.html",
+    "open_in_tab": true
+  }
+}

@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="fr">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link rel="stylesheet" href="popup.css" />
+    <title>Sauvegarder l'annonce</title>
+  </head>
+  <body>
+    <div id="needs-config" class="hidden">
+      <p>Configure d'abord l'URL du site et le secret.</p>
+      <button id="open-options" class="primary">Ouvrir les réglages</button>
+    </div>
+
+    <div id="main" class="hidden">
+      <div class="preview">
+        <img id="photo" class="photo hidden" alt="" />
+        <div id="no-photo" class="no-photo hidden">Pas de photo détectée</div>
+        <div class="preview-text">
+          <span id="source" class="badge"></span>
+          <div id="title" class="title"></div>
+          <div id="price" class="price"></div>
+        </div>
+      </div>
+
+      <label for="notes">Qu'est-ce qui te plaît dans cette annonce ?</label>
+      <textarea
+        id="notes"
+        rows="4"
+        placeholder="Ex : grande terrasse exposée sud, proche écoles, beau volume du séjour…"
+      ></textarea>
+
+      <button id="save" class="primary">Sauvegarder</button>
+      <div id="status" class="status"></div>
+      <a id="open-options-2" href="#" class="settings-link">Réglages</a>
+    </div>
+
+    <script src="extract.js"></script>
+    <script src="popup.js"></script>
+  </body>
+</html>
