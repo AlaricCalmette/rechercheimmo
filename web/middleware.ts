@@ -6,7 +6,7 @@ import { AUTH_COOKIE, expectedToken } from "@/lib/auth";
 function isPublic(pathname: string): boolean {
   return (
     pathname.startsWith("/login") ||
-    pathname.startsWith("/api/listings")
+    pathname.startsWith("/api/")
   );
 }
 

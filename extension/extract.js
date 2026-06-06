@@ -60,6 +60,50 @@ function extractListing() {
     "Accommodation"
   );
 
+  // Objet logement (schema.org Accommodation et dérivés) : porte souvent
+  // floorSize / numberOfRooms / address, distinct du Product qui porte le prix.
+  const accommodation = findLd(
+    "Accommodation",
+    "Residence",
+    "Apartment",
+    "House",
+    "SingleFamilyResidence"
+  );
+
+  // Convertit une valeur potentiellement formatée ("149 425 €") en entier.
+  const toNumber = (v) => {
+    if (v == null) return null;
+    if (typeof v === "number") return Number.isFinite(v) ? v : null;
+    const n = parseInt(String(v).replace(/[^\d]/g, ""), 10);
+    return Number.isFinite(n) ? n : null;
+  };
+
+  // Extrait un prix d'un objet Offer (ou tableau d'offres). Bien'ici place le
+  // prix sous offers.priceSpecification.price, d'où l'exploration récursive.
+  const priceFromOffer = (o) => {
+    if (!o) return null;
+    if (Array.isArray(o)) {
+      for (const item of o) {
+        const p = priceFromOffer(item);
+        if (p != null) return p;
+      }
+      return null;
+    }
+    const direct = toNumber(o.price ?? o.lowPrice);
+    if (direct != null) return direct;
+    const spec = o.priceSpecification;
+    if (Array.isArray(spec)) {
+      for (const s of spec) {
+        const p = toNumber(s?.price);
+        if (p != null) return p;
+      }
+    } else if (spec) {
+      const p = toNumber(spec.price);
+      if (p != null) return p;
+    }
+    return null;
+  };
+
   const title = meta("og:title") || document.title || null;
   const description =
     meta("og:description") ||
@@ -67,14 +111,12 @@ function extractListing() {
     null;
   const url = meta("og:url") || location.href;
 
-  // Prix : d'abord via JSON-LD offers, sinon repli par regex sur le texte.
-  let price = null;
-  const offer = product?.offers || findLd("Offer");
-  const rawPrice = offer?.price ?? offer?.lowPrice ?? product?.price;
-  if (rawPrice != null) {
-    const n = parseInt(String(rawPrice).replace(/[^\d]/g, ""), 10);
-    if (Number.isFinite(n)) price = n;
-  }
+  // Prix : d'abord via JSON-LD offers (y compris priceSpecification.price utilisé
+  // par bien'ici), sinon repli par regex sur le texte de la page.
+  let price =
+    priceFromOffer(product?.offers) ??
+    priceFromOffer(findLd("Offer")) ??
+    toNumber(product?.price);
   if (price == null) {
     const m = document.body.innerText.match(/(\d[\d\s.  ]{3,})\s*€/);
     if (m) {
@@ -83,8 +125,19 @@ function extractListing() {
     }
   }
 
+  // Surface (m²) et nombre de pièces depuis le JSON-LD du logement quand présents.
+  const accSurface = toNumber(accommodation?.floorSize?.value);
+  const surface = accSurface != null ? `${accSurface} m²` : null;
+  const rawRooms = accommodation?.numberOfRooms;
+  const rooms =
+    rawRooms != null
+      ? toNumber(typeof rawRooms === "object" ? rawRooms.value : rawRooms)
+      : null;
+
   const location_ =
     meta("og:locality") ||
+    accommodation?.address?.addressLocality ||
+    accommodation?.address?.postalCode ||
     product?.address?.addressLocality ||
     product?.address?.postalCode ||
     null;
@@ -96,8 +149,8 @@ function extractListing() {
     description,
     price,
     location: location_,
-    surface: null,
-    rooms: null,
+    surface,
+    rooms,
     photos: [...photos].slice(0, 12),
     raw: { host, jsonLd: ld.slice(0, 5) },
   };

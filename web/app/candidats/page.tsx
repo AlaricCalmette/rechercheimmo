@@ -1,7 +1,7 @@
-import { desc } from "drizzle-orm";
+import { desc, eq } from "drizzle-orm";
 import { db } from "@/lib/db";
-import { listings, type Listing } from "@/db/schema";
-import { deleteListing, logout } from "./actions";
+import { candidates, type Candidate } from "@/db/schema";
+import { logout } from "../actions";
 
 export const dynamic = "force-dynamic";
 
@@ -14,7 +14,7 @@ function formatPrice(price: number | null): string | null {
   }).format(price);
 }
 
-function Card({ item }: { item: Listing }) {
+function Card({ item }: { item: Candidate }) {
   const photo = item.photos?.[0] ?? null;
   const price = formatPrice(item.price);
   return (
@@ -26,13 +26,11 @@ function Card({ item }: { item: Listing }) {
         <div className="no-photo">Pas de photo</div>
       )}
       <div className="body">
-        <span className="badge">{item.source}</span>
-        <a
-          className="title"
-          href={item.url}
-          target="_blank"
-          rel="noreferrer"
-        >
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+          <span className="badge">{item.source}</span>
+          {item.score != null && <span className="score">Score {item.score}/100</span>}
+        </div>
+        <a className="title" href={item.url} target="_blank" rel="noreferrer">
           {item.title ?? item.url}
         </a>
         <div className="meta">
@@ -41,47 +39,64 @@ function Card({ item }: { item: Listing }) {
           {item.rooms && <span>{item.rooms}</span>}
           {item.location && <span>{item.location}</span>}
         </div>
-        {item.notes && <div className="note">{item.notes}</div>}
+        {item.reasons && <div className="note">{item.reasons}</div>}
         <div className="actions">
           <a href={item.url} target="_blank" rel="noreferrer">
             Voir l&apos;annonce →
           </a>
-          <form action={deleteListing}>
-            <input type="hidden" name="id" value={item.id} />
-            <button className="danger" type="submit">
-              Supprimer
-            </button>
-          </form>
         </div>
       </div>
     </div>
   );
 }
 
-export default async function Home() {
-  const rows = await db
-    .select()
-    .from(listings)
-    .orderBy(desc(listings.createdAt));
+export default async function Candidats() {
+  const latest = await db
+    .select({ runId: candidates.runId, createdAt: candidates.createdAt })
+    .from(candidates)
+    .orderBy(desc(candidates.createdAt))
+    .limit(1);
+
+  const rows =
+    latest.length === 0
+      ? []
+      : await db
+          .select()
+          .from(candidates)
+          .where(eq(candidates.runId, latest[0].runId))
+          .orderBy(desc(candidates.score));
+
+  const runDate =
+    latest.length > 0
+      ? new Intl.DateTimeFormat("fr-FR", { dateStyle: "long", timeStyle: "short" }).format(
+          latest[0].createdAt
+        )
+      : null;
 
   return (
     <>
       <header className="header">
         <h1>
-          Mes annonces<span className="count">{rows.length} sauvegardée{rows.length > 1 ? "s" : ""}</span>
+          Candidats trouvés
+          <span className="count">{rows.length} annonce{rows.length > 1 ? "s" : ""}</span>
         </h1>
         <nav style={{ display: "flex", gap: 12, alignItems: "center" }}>
-          <a href="/candidats">Candidats du skill →</a>
+          <a href="/">← Mes annonces</a>
           <form action={logout}>
             <button type="submit">Se déconnecter</button>
           </form>
         </nav>
       </header>
       <div className="container">
+        {runDate && (
+          <p style={{ color: "var(--muted)", marginTop: 0 }}>
+            Dernier passage du skill : {runDate}
+          </p>
+        )}
         {rows.length === 0 ? (
           <div className="empty">
-            Aucune annonce pour l&apos;instant. Sauvegarde-en une depuis
-            l&apos;extension Chrome.
+            Aucun candidat pour l&apos;instant. Lance le skill <code>recherche-immo</code>{" "}
+            (ou attends la prochaine routine planifiée).
           </div>
         ) : (
           <div className="grid">
