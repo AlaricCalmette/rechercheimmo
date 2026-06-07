@@ -1,7 +1,7 @@
-import { desc, eq } from "drizzle-orm";
+import { desc } from "drizzle-orm";
 import { db } from "@/lib/db";
 import { candidates, type Candidate } from "@/db/schema";
-import { logout } from "../actions";
+import { logout, deleteCandidate } from "../actions";
 
 export const dynamic = "force-dynamic";
 
@@ -44,6 +44,12 @@ function Card({ item }: { item: Candidate }) {
           <a href={item.url} target="_blank" rel="noreferrer">
             Voir l&apos;annonce →
           </a>
+          <form action={deleteCandidate}>
+            <input type="hidden" name="id" value={item.id} />
+            <button className="danger" type="submit">
+              Supprimer
+            </button>
+          </form>
         </div>
       </div>
     </div>
@@ -51,27 +57,11 @@ function Card({ item }: { item: Candidate }) {
 }
 
 export default async function Candidats() {
-  const latest = await db
-    .select({ runId: candidates.runId, createdAt: candidates.createdAt })
+  // Tous les candidats accumulés, classés par score puis par date.
+  const rows = await db
+    .select()
     .from(candidates)
-    .orderBy(desc(candidates.createdAt))
-    .limit(1);
-
-  const rows =
-    latest.length === 0
-      ? []
-      : await db
-          .select()
-          .from(candidates)
-          .where(eq(candidates.runId, latest[0].runId))
-          .orderBy(desc(candidates.score));
-
-  const runDate =
-    latest.length > 0
-      ? new Intl.DateTimeFormat("fr-FR", { dateStyle: "long", timeStyle: "short" }).format(
-          latest[0].createdAt
-        )
-      : null;
+    .orderBy(desc(candidates.score), desc(candidates.createdAt));
 
   return (
     <>
@@ -88,15 +78,11 @@ export default async function Candidats() {
         </nav>
       </header>
       <div className="container">
-        {runDate && (
-          <p style={{ color: "var(--muted)", marginTop: 0 }}>
-            Dernier passage du skill : {runDate}
-          </p>
-        )}
         {rows.length === 0 ? (
           <div className="empty">
-            Aucun candidat pour l&apos;instant. Lance le skill <code>recherche-immo</code>{" "}
-            (ou attends la prochaine routine planifiée).
+            Aucun candidat pour l&apos;instant. La routine <code>recherche-immo</code>{" "}
+            en ajoutera à chaque passage (sans doublon). Tu peux supprimer ceux qui ne
+            t&apos;intéressent pas.
           </div>
         ) : (
           <div className="grid">

@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { desc, eq } from "drizzle-orm";
+import { desc, inArray } from "drizzle-orm";
 import { db } from "@/lib/db";
 import { candidates, type NewCandidate } from "@/db/schema";
 
@@ -25,28 +25,17 @@ export async function OPTIONS() {
   return new NextResponse(null, { status: 204, headers: CORS });
 }
 
-// Renvoie les candidats du dernier passage (runId le plus récent).
+// Renvoie TOUS les candidats accumulés (classés par score puis date).
 export async function GET(req: NextRequest) {
   if (!authorized(req)) {
     return NextResponse.json({ error: "unauthorized" }, { status: 401, headers: CORS });
   }
-  const latest = await db
-    .select({ runId: candidates.runId })
-    .from(candidates)
-    .orderBy(desc(candidates.createdAt))
-    .limit(1);
-
-  if (latest.length === 0) {
-    return NextResponse.json({ runId: null, candidates: [] }, { headers: CORS });
-  }
-
   const rows = await db
     .select()
     .from(candidates)
-    .where(eq(candidates.runId, latest[0].runId))
-    .orderBy(desc(candidates.score));
+    .orderBy(desc(candidates.score), desc(candidates.createdAt));
 
-  return NextResponse.json({ runId: latest[0].runId, candidates: rows }, { headers: CORS });
+  return NextResponse.json({ count: rows.length, candidates: rows }, { headers: CORS });
 }
 
 // Le skill envoie un lot de candidats (un passage = un runId).
@@ -103,6 +92,30 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "no valid candidates" }, { status: 400, headers: CORS });
   }
 
-  await db.insert(candidates).values(rows);
-  return NextResponse.json({ runId, inserted: rows.length }, { status: 201, headers: CORS });
+  // Déduplication : on n'ajoute que les annonces dont l'URL n'est pas déjà
+  // présente. La routine ne fait donc qu'ajouter des candidats (jamais de
+  // doublon, jamais de remplacement) ; la suppression est manuelle côté site.
+  const urls = rows.map((r) => r.url);
+  const existing = await db
+    .select({ url: candidates.url })
+    .from(candidates)
+    .where(inArray(candidates.url, urls));
+  const seen = new Set(existing.map((e) => e.url));
+
+  // dédoublonne aussi à l'intérieur du lot reçu
+  const newRows: NewCandidate[] = [];
+  for (const r of rows) {
+    if (!seen.has(r.url)) {
+      seen.add(r.url);
+      newRows.push(r);
+    }
+  }
+
+  if (newRows.length > 0) {
+    await db.insert(candidates).values(newRows);
+  }
+  return NextResponse.json(
+    { runId, inserted: newRows.length, skipped: rows.length - newRows.length },
+    { status: 201, headers: CORS }
+  );
 }

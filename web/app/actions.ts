@@ -5,7 +5,7 @@ import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
 import { eq } from "drizzle-orm";
 import { db } from "@/lib/db";
-import { listings } from "@/db/schema";
+import { listings, candidates } from "@/db/schema";
 import { AUTH_COOKIE, expectedToken } from "@/lib/auth";
 
 export async function login(formData: FormData) {
@@ -37,5 +37,17 @@ export async function deleteListing(formData: FormData) {
   if (id) {
     await db.delete(listings).where(eq(listings.id, id));
     revalidatePath("/");
+  }
+}
+
+export async function deleteCandidate(formData: FormData) {
+  const token = (await cookies()).get(AUTH_COOKIE)?.value;
+  if (token !== (await expectedToken())) {
+    redirect("/login");
+  }
+  const id = String(formData.get("id") ?? "");
+  if (id) {
+    await db.delete(candidates).where(eq(candidates.id, id));
+    revalidatePath("/candidats");
   }
 }
