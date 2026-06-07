@@ -1,0 +1,148 @@
+{
+  "candidates": [
+    {
+      "source": "lesiteimmo",
+      "url": "https://www.lesiteimmo.com/louer/maison-5pieces/rozier-en-donzy-42810/32425447",
+      "title": "Maison 5 pièces 130 m² à Rozier-en-Donzy",
+      "price": 950,
+      "location": "Rozier-en-Donzy (42810)",
+      "surface": "130 m²",
+      "rooms": "5 pièces, 4 chambres",
+      "photos": ["https://media.studio-net.fr/biens/32425447/x69d3ea716b60c?w=1504&h=512&q=90"],
+      "score": 80,
+      "reasons": "Poutres apparentes et hauteur sous plafond créent une ambiance loft (charme de l'ancien), terrasse plein sud avec vue campagne, baignoire d'angle, jardin privatif, cuisine ouverte, entièrement rénové — coche presque toutes les préférences récurrentes des annonces aimées."
+    },
+    {
+      "source": "paruvendu",
+      "url": "https://www.paruvendu.fr/immobilier/location/maison/1291650261A1KILHMN000",
+      "title": "Maison 4 pièces 120 m² à Saint-Romain-d'Ay",
+      "price": 1150,
+      "location": "Saint-Romain-d'Ay (07290)",
+      "surface": "120 m²",
+      "rooms": "4 pièces, 3 chambres",
+      "photos": [],
+      "score": 79,
+      "reasons": "Construction 'pierre et bois' (façade en pierre + caractère boisé), terrain 3 600 m² (grand jardin sans voisin direct), deux terrasses, calme sur les hauteurs, poêle à bois — correspond aux deux préférences les plus fortes : façade en pierre et grand jardin isolé."
+    },
+    {
+      "source": "lesiteimmo",
+      "url": "https://www.lesiteimmo.com/louer/maison-5pieces/vif-38450/31376852",
+      "title": "Maison 5 pièces 122 m² à Vif",
+      "price": 815,
+      "location": "Vif (38450)",
+      "surface": "122 m²",
+      "rooms": "5 pièces, 4 chambres",
+      "photos": ["https://media.studio-net.fr/biens/31376852/x685d3a1512467?w=1504&h=512&q=90"],
+      "score": 65,
+      "reasons": "Cheminée avec insert (charme de l'ancien), grand jardin privatif, grande terrasse, exposition sud, cadre calme à 20 min de Grenoble — budget excellent pour la surface."
+    },
+    {
+      "source": "lesiteimmo",
+      "url": "https://www.lesiteimmo.com/louer/maison-5pieces/cellieu-42320/33239723",
+      "title": "Maison 5 pièces 136 m² à Cellieu",
+      "price": 1500,
+      "location": "Cellieu (42320)",
+      "surface": "136 m²",
+      "rooms": "5 pièces, 4 chambres",
+      "photos": ["https://media.studio-net.fr/biens/33239723/x6a225877bcd22?w=1504&h=512&q=90"],
+      "score": 60,
+      "reasons": "Jardin, sans vis-à-vis, baignoire, cuisine équipée indépendante, grande surface — disponible immédiatement."
+    },
+    {
+      "source": "lesiteimmo",
+      "url": "https://www.lesiteimmo.com/louer/maison-4pieces/colombies-12240/32838851",
+      "title": "Maison 4 pièces 109 m² à Colombiès",
+      "price": 735,
+      "location": "Colombiès (12240)",
+      "surface": "109 m²",
+      "rooms": "4 pièces, 3 chambres",
+      "photos": ["https://media.studio-net.fr/biens/32838851/x6a0cc625cefb1?w=1504&h=512&q=90"],
+      "score": 59,
+      "reasons": "Terrain 1 500 m² (grand jardin de campagne), terrasse sud-est, cuisine équipée séparée, cadre rural calme — budget très accessible pour l'espace extérieur."
+    },
+    {
+      "source": "lesiteimmo",
+      "url": "https://www.lesiteimmo.com/louer/maison-6pieces/drulhe-12350/33024457",
+      "title": "Maison 6 pièces 160 m² à Drulhe",
+      "price": 1200,
+      "location": "Drulhe (12350)",
+      "surface": "160 m²",
+      "rooms": "6 pièces, 5 chambres",
+      "photos": ["https://media.studio-net.fr/biens/33024457/x6a2396be1bb6f?w=1504&h=512&q=90"],
+      "score": 58,
+      "reasons": "Grand jardin, sans vis-à-vis, baignoire, cuisine équipée, grande surface de 160 m² — disponible immédiatement."
+    },
+    {
+      "source": "lesiteimmo",
+      "url": "https://www.lesiteimmo.com/louer/maison-4pieces/saint-pierre-de-boeuf-42520/33103892",
+      "title": "Maison 4 pièces 93 m² à Saint-Pierre-de-Bœuf",
+      "price": 780,
+      "location": "Saint-Pierre-de-Bœuf (42520)",
+      "surface": "93 m²",
+      "rooms": "4 pièces, 3 chambres",
+      "photos": ["https://media.studio-net.fr/biens/33103892/x69e66adc1b101?w=1504&h=512&q=90"],
+      "score": 58,
+      "reasons": "Cave voûtée (charme de l'ancien), terrasse ombragée de vigne, jardin, entièrement rénovée — budget excellent, seul bémol : surface un peu juste (93 m²)."
+    },
+    {
+      "source": "paruvendu",
+      "url": "https://www.paruvendu.fr/immobilier/location/maison/1290224054A1KILHMN000",
+      "title": "Maison de village 4 pièces 112 m² à Saint-Marcellin-en-Forez",
+      "price": 920,
+      "location": "Saint-Marcellin-en-Forez (42110)",
+      "surface": "112 m²",
+      "rooms": "4 pièces, 3 chambres",
+      "photos": [],
+      "score": 58,
+      "reasons": "Maison de village traditionnelle rénovée, jardin clos 500 m², cuisine entièrement équipée, double salle de bains — annonce vérifiée active le 06/06/2026."
+    },
+    {
+      "source": "lesiteimmo",
+      "url": "https://www.lesiteimmo.com/louer/maison-4pieces/saint-etienne-42230/33254767",
+      "title": "Maison 4 pièces 100 m² Saint-Victor-sur-Loire (Saint-Étienne)",
+      "price": 1135,
+      "location": "Saint-Étienne (42230)",
+      "surface": "100 m²",
+      "rooms": "4 pièces, 3 chambres",
+      "photos": ["https://media.studio-net.fr/biens/33254767/x6a0ee851a3443?w=1504&h=512&q=90"],
+      "score": 55,
+      "reasons": "Environnement très calme, baignoire et douche, deux terrasses est-ouest, terrain 200 m², garage — situé à Saint-Victor-sur-Loire, cadre naturel du lac de Grangent."
+    },
+    {
+      "source": "lesiteimmo",
+      "url": "https://www.lesiteimmo.com/louer/maison-4pieces/romagnat-63540/33328600",
+      "title": "Maison 4 pièces 137 m² à Romagnat (meublée)",
+      "price": 950,
+      "location": "Romagnat (63540)",
+      "surface": "137 m²",
+      "rooms": "4 pièces, 3 chambres",
+      "photos": ["https://media.studio-net.fr/biens/33328600/x6a1fb8083eed4?w=1504&h=512&q=90"],
+      "score": 53,
+      "reasons": "Décrite comme 'cachet de l'ancien et confort moderne', cuisine ouverte, baignoire familiale, terrasse, garage — belle surface pour un loyer très raisonnable."
+    },
+    {
+      "source": "lesiteimmo",
+      "url": "https://www.lesiteimmo.com/louer/maison-5pieces/andrezieux-boutheon-42160/33158141",
+      "title": "Maison 5 pièces 113 m² à Andrézieux-Bouthéon",
+      "price": 1450,
+      "location": "Andrézieux-Bouthéon (42160)",
+      "surface": "113 m²",
+      "rooms": "5 pièces, 3 chambres + studio indépendant",
+      "photos": ["https://media.studio-net.fr/biens/33158141/x69f3c7ab213d8?w=1504&h=512&q=90"],
+      "score": 50,
+      "reasons": "Terrain clos 1 000 m² sans vis-à-vis, studio indépendant au-dessus du garage, quartier calme et recherché — grand potentiel mais prix élevé."
+    },
+    {
+      "source": "lesiteimmo",
+      "url": "https://www.lesiteimmo.com/louer/maison-5pieces/puy-l-eveque-46700/32743759",
+      "title": "Maison 5 pièces 120 m² à Puy-l'Évêque",
+      "price": 950,
+      "location": "Puy-l'Évêque (46700)",
+      "surface": "120 m²",
+      "rooms": "5 pièces, 4 chambres",
+      "photos": ["https://media.studio-net.fr/biens/32743759/x6a0132613947a?w=1504&h=512&q=90"],
+      "score": 49,
+      "reasons": "Jardin, plain-pied, cuisine équipée — beau village du Lot mais caractéristiques qualitatives peu détaillées."
+    }
+  ]
+}
