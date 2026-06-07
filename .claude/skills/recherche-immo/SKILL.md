@@ -141,7 +141,10 @@ crédible. Garde le **top 15-25**.
 ### Étape 4 — Livrer (les deux sorties)
 
 **a) Rapport Markdown** dans le repo, fichier daté `resultats/AAAA-MM-JJ.md`
-(crée le dossier `resultats/` au besoin), suivant le modèle ci-dessous.
+(crée le dossier `resultats/` au besoin), suivant le modèle ci-dessous. Si tu
+commits ce rapport (cas d'une routine sur un repo), fais-le **directement sur la
+branche `main`** (`git add resultats/ && git commit && git push origin main`) —
+**ne crée pas de branche ni de pull request**.
 
 **b) Envoi sur le site** : écris un JSON temporaire (modèle plus bas) puis :
 
