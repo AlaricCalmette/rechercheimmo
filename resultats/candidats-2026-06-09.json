@@ -1,0 +1,148 @@
+{
+  "candidates": [
+    {
+      "source": "lesiteimmo",
+      "url": "https://www.lesiteimmo.com/louer/maison-7pieces/presly-18380/33337033",
+      "title": "Demeure bourgeoise 7 pièces 280 m² — Presly (18380)",
+      "price": 1000,
+      "location": "Presly (18380), Cher, Centre-Val de Loire",
+      "surface": "280 m²",
+      "rooms": "7 pièces, 2 chambres, bureau, 2 suites parentales",
+      "photos": ["https://media.studio-net.fr/biens/33337033/x6a21cb89aabab"],
+      "score": 79,
+      "reasons": "Demeure bourgeoise avec parc arboré de 2150 m², vue dégagée sur étang, poêle à bois, cadre calme et sans vis-à-vis — toutes les préférences clés matchées : volumes généreux, jardin, cheminée, isolement. Chauffage fuel à vérifier (noté négatif dans les annonces aimées)."
+    },
+    {
+      "source": "lesiteimmo",
+      "url": "https://www.lesiteimmo.com/louer/maison-4pieces/saint-paul-trois-chateaux-26130/33179148",
+      "title": "Maison en pierre 4 pièces 100 m² — Saint-Paul-Trois-Châteaux (26130)",
+      "price": 900,
+      "location": "Saint-Paul-Trois-Châteaux (26130), Drôme",
+      "surface": "100 m²",
+      "rooms": "4 pièces, 2 chambres, bureau",
+      "photos": ["https://media.studio-net.fr/biens/33179148/x6a270628cac41"],
+      "score": 77,
+      "reasons": "Propriété rurale en pierre (préférence récurrente), foyer dans le salon, terrasse, panorama dégagé sur la campagne, cadre tranquille — correspond exactement aux goûts : matériaux anciens, calme, vue, bureau pour télétravail. Prix réduit de 10 %."
+    },
+    {
+      "source": "lesiteimmo",
+      "url": "https://www.lesiteimmo.com/louer/maison-6pieces/pierre-buffiere-87260/33301633",
+      "title": "Maison familiale 6 pièces 127 m² + piscine — Pierre-Buffière (87260)",
+      "price": 1050,
+      "location": "Pierre-Buffière (87260), Haute-Vienne, Nouvelle-Aquitaine",
+      "surface": "127 m²",
+      "rooms": "6 pièces, 5 chambres",
+      "photos": ["https://media.studio-net.fr/biens/33301633/x6a193036ed2da"],
+      "score": 75,
+      "reasons": "Belle maison familiale avec jardin clos, piscine (10×5), cheminée bois dans le séjour lumineux, cadre calme et ensoleillé — cochant les préférences : jardin, cheminée fonctionnelle, calme, cuisine équipée. Dispo immédiate."
+    },
+    {
+      "source": "lesiteimmo",
+      "url": "https://www.lesiteimmo.com/louer/maison-5pieces/vif-38450/31376852",
+      "title": "Maison 5 pièces 122 m² terrasse plein sud — Vif (38450)",
+      "price": 815,
+      "location": "Vif (38450), Isère, Auvergne-Rhône-Alpes",
+      "surface": "122 m²",
+      "rooms": "5 pièces, 4 chambres",
+      "photos": ["https://media.studio-net.fr/biens/31376852/x685d3a1512467"],
+      "score": 74,
+      "reasons": "Cheminée à insert, jardin privé, terrasse plein sud, cadre calme à 20 min de Grenoble — correspond aux préférences : cheminée fonctionnelle, jardin, terrasse, exposition et calme. Grand séjour de 40 m². Proche services et transports."
+    },
+    {
+      "source": "lesiteimmo",
+      "url": "https://www.lesiteimmo.com/louer/maison-8pieces/la-chapelle-d-angillon-18380/33273070",
+      "title": "Maison de standing 8 pièces 151 m² — La Chapelle-d'Angillon (18380)",
+      "price": 950,
+      "location": "La Chapelle-d'Angillon (18380), Cher, Centre-Val de Loire",
+      "surface": "151 m²",
+      "rooms": "8 pièces, 4 chambres, dressing/bureau",
+      "photos": ["https://media.studio-net.fr/biens/33273070/x6a2224a1ce5eb"],
+      "score": 72,
+      "reasons": "Hameau en pleine nature, foyer ouvert dans le séjour, lumineux, repensée par architecte (prestations de qualité), calme absolu sans vis-à-vis forestier — correspondant aux goûts : charme et standing, cheminée, télétravail, volumes. Extérieur non clôturé."
+    },
+    {
+      "source": "lesiteimmo",
+      "url": "https://www.lesiteimmo.com/louer/maison-5pieces/pierrelatte-26700/33345534",
+      "title": "Maison meublée 5 pièces 162 m² + jardin — Pierrelatte (26700)",
+      "price": 885,
+      "location": "Pierrelatte (26700), Drôme",
+      "surface": "162 m²",
+      "rooms": "5 pièces, 4 chambres",
+      "photos": ["https://media.studio-net.fr/biens/33345534/x6a23347b23925"],
+      "score": 67,
+      "reasons": "Jardin avec mobilier extérieur, terrasse couverte, cheminée dans le salon, cuisine neuve équipée, orientation sud — cheminée, jardin, terrasse et cuisine rénovée figurent parmi les préférences. Attention : meublé (bail meublé)."
+    },
+    {
+      "source": "lesiteimmo",
+      "url": "https://www.lesiteimmo.com/louer/maison-5pieces/suze-la-rousse-26790/33094354",
+      "title": "Maison de campagne 5 pièces 134 m² — Suze-la-Rousse (26790)",
+      "price": 1000,
+      "location": "Suze-la-Rousse (26790), Drôme",
+      "surface": "134 m²",
+      "rooms": "5 pièces, 3 chambres dont une avec bureau",
+      "photos": ["https://media.studio-net.fr/biens/33094354/x6a27060ea706e"],
+      "score": 66,
+      "reasons": "Cheminée dans le salon, terrasse avec pergola, environnement calme et verdoyant, chambre avec bureau — préférences calme, cheminée, terrasse et télétravail cochées. Cour commune (non clôturé en solo). Cave et parking."
+    },
+    {
+      "source": "lesiteimmo",
+      "url": "https://www.lesiteimmo.com/louer/maison-5pieces/talmay-21270/32976489",
+      "title": "Maison ancienne 5 pièces 161 m² — Talmay (21270)",
+      "price": 850,
+      "location": "Talmay (21270), Côte-d'Or, Bourgogne-Franche-Comté",
+      "surface": "161 m²",
+      "rooms": "5 pièces, 3 chambres",
+      "photos": ["https://media.studio-net.fr/biens/32976489/x69c7389b241c5"],
+      "score": 64,
+      "reasons": "Cheminée dans la salle de séjour, jardin, cour fermée, style ancien préservé avec beaux volumes — cheminée, jardin et charme de l'ancien sont des préférences récurrentes. Chauffage fuel (noté négatif par l'utilisateur). Dispo fin juin 2026."
+    },
+    {
+      "source": "lesiteimmo",
+      "url": "https://www.lesiteimmo.com/louer/maison-6pieces/beuzeville-27210/33328716",
+      "title": "Maison rénovée 6 pièces 132 m² — Beuzeville (27210)",
+      "price": 1110,
+      "location": "Beuzeville (27210), Eure, Normandie",
+      "surface": "132 m²",
+      "rooms": "6 pièces, 4 chambres",
+      "photos": ["https://media.studio-net.fr/biens/33328716/x6a1fbc9704054"],
+      "score": 60,
+      "reasons": "Cheminée, jardin de 230 m², baignoire (préférence exprimée), chauffage gaz de ville, entièrement rénovée — cheminée, jardin et baignoire matchent. Normandie correspond à une zone aimée. Dispo août 2026."
+    },
+    {
+      "source": "lesiteimmo",
+      "url": "https://www.lesiteimmo.com/louer/maison-4pieces/meung-sur-loire-45130/33254588",
+      "title": "Maison ancienne 4 pièces 138 m² — Meung-sur-Loire (45130)",
+      "price": 1000,
+      "location": "Meung-sur-Loire (45130), Loiret, Centre-Val de Loire",
+      "surface": "138 m²",
+      "rooms": "4 pièces, 3 chambres",
+      "photos": ["https://media.studio-net.fr/biens/33254588/x6a0dd1eebb6fa"],
+      "score": 59,
+      "reasons": "Maison ancienne avec cheminée dans le salon-séjour, terrain de ~1000 m², garage attenant — cheminée et charme de l'ancien sont des préférences clés. Chauffage électrique. Dispo mi-août."
+    },
+    {
+      "source": "lesiteimmo",
+      "url": "https://www.lesiteimmo.com/louer/maison-4pieces/verneuil-d-avre-et-d-iton-27130/33288577",
+      "title": "Maison de ville 4 pièces 99 m² jardin — Verneuil d'Avre et d'Iton (27130)",
+      "price": 670,
+      "location": "Verneuil d'Avre et d'Iton (27130), Eure, Normandie",
+      "surface": "99 m²",
+      "rooms": "4 pièces, 3 chambres",
+      "photos": ["https://media.studio-net.fr/biens/33288577/x6a23be56314f4"],
+      "score": 51,
+      "reasons": "Jardin clos, cheminée décorative, cave, chauffage gaz, escalier dans l'entrée (préférence notée) — jardin et escalier sont des points aimés. Cheminée décorative (non fonctionnelle). Centre-ville de Verneuil, Normandie."
+    },
+    {
+      "source": "lesiteimmo",
+      "url": "https://www.lesiteimmo.com/louer/maison-4pieces/preaux-07290/33157041",
+      "title": "Maison individuelle 4 pièces 92 m² + terrain — Préaux (07290)",
+      "price": 835,
+      "location": "Préaux (07290), Ardèche",
+      "surface": "92 m²",
+      "rooms": "4 pièces, 4 chambres",
+      "photos": ["https://media.studio-net.fr/biens/33157041/x6a228808e15f9"],
+      "score": 46,
+      "reasons": "Grand terrain clos de 1125 m², terrasse, cave, secteur 07290 (même code postal que St-Romain-d'Ay sauvegardé) — jardin et terrasse matchent, et la zone Ardèche est déjà appréciée. Pas de cheminée ni matériaux anciens mentionnés. Dispo août 2026."
+    }
+  ]
+}
