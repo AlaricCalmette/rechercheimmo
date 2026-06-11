@@ -1,0 +1,148 @@
+{
+  "candidates": [
+    {
+      "source": "paruvendu",
+      "url": "https://www.paruvendu.fr/immobilier/location/maison/1289853591A1KILHMN000",
+      "title": "Maison de campagne 5 pièces 136 m² à Saint-Géry (Dordogne)",
+      "price": 860,
+      "location": "Saint-Géry (24400), Dordogne",
+      "surface": "136 m²",
+      "rooms": "5 pièces, 3 chambres",
+      "photos": [],
+      "score": 81,
+      "reasons": "Superbe maison de campagne périgourdine avec grange en pierre, jardin clos et terrasse — charme de l'ancien, matériaux nobles et calme rural rejoignent tes trois préférences les plus récurrentes."
+    },
+    {
+      "source": "lesiteimmo",
+      "url": "https://www.lesiteimmo.com/louer/maison-9pieces/reviers-14470/33095307",
+      "title": "Maison en pierre 9 pièces 197 m² à Reviers (Calvados)",
+      "price": 1410,
+      "location": "Reviers (14470), Calvados, Normandie",
+      "surface": "197 m²",
+      "rooms": "9 pièces, 5 chambres",
+      "photos": ["https://media.studio-net.fr/biens/33095307/x69e7f8dd722ed"],
+      "score": 80,
+      "reasons": "Maison en pierre avec séjour de 58 m² et cheminée ouverte, jardin clos de murs en pierre (400 m²), combles aménagés, dépendance attenante — pierre, cheminée, combles et calme cumulent tes préférences matériaux nobles + volumes."
+    },
+    {
+      "source": "lesiteimmo",
+      "url": "https://www.lesiteimmo.com/louer/maison-5pieces/morannes-sur-sarthe-daumeray-49640/33284023",
+      "title": "Longère rénovée 5 pièces 188 m² à Morannes-sur-Sarthe",
+      "price": 980,
+      "location": "Morannes-sur-Sarthe (49640), Maine-et-Loire",
+      "surface": "188 m²",
+      "rooms": "5 pièces, 3 chambres",
+      "photos": ["https://media.studio-net.fr/biens/33284023/x6a160ab71d815"],
+      "score": 78,
+      "reasons": "Longère entièrement rénovée entre forêt et campagne avec jardin et dépendances — type longère et immersion dans la nature, exactement comme l'annonce de Sainte-Montaine aimée; grande surface à prix raisonnable."
+    },
+    {
+      "source": "lesiteimmo",
+      "url": "https://www.lesiteimmo.com/louer/maison-5pieces/remouille-44140/33335934",
+      "title": "Longère 5 pièces 100 m² à Remouillé — poutres et pierre",
+      "price": 1100,
+      "location": "Remouillé (44140), Loire-Atlantique",
+      "surface": "100 m²",
+      "rooms": "5 pièces, 3 chambres",
+      "photos": ["https://media.studio-net.fr/biens/33335934/x6a286a0354554"],
+      "score": 72,
+      "reasons": "Longère rénovée avec poutres apparentes et murs en pierre, plancher chauffant, cuisine équipée, terrasse et terrain privatif — poutres + pierre + longère, trois signaux forts de tes annonces aimées."
+    },
+    {
+      "source": "lesiteimmo",
+      "url": "https://www.lesiteimmo.com/louer/maison-6pieces/cognac-16100/32309304",
+      "title": "Maison ancienne 6 pièces 136 m² à Cognac — cheminée et cour",
+      "price": 995,
+      "location": "Cognac (16100), Charente",
+      "surface": "136 m²",
+      "rooms": "6 pièces, 4 chambres",
+      "photos": ["https://media.studio-net.fr/biens/32309304/x6966b32422a99"],
+      "score": 67,
+      "reasons": "Maison ancienne \"bien de caractère\" en vieux Cognac avec cheminée, cour fermée et jardin — charme de l'ancien et espace extérieur doublé (cour + jardin) correspondant aux préférences récurrentes."
+    },
+    {
+      "source": "lesiteimmo",
+      "url": "https://www.lesiteimmo.com/louer/maison-6pieces/agonac-24460/32767931",
+      "title": "Maison 6 pièces 200 m² à Agonac (Dordogne)",
+      "price": 890,
+      "location": "Agonac (24460), Dordogne",
+      "surface": "200 m²",
+      "rooms": "6 pièces, 5 chambres",
+      "photos": ["https://media.studio-net.fr/biens/32767931/x6a0fdf64ecb46"],
+      "score": 64,
+      "reasons": "Grande maison de 200 m² en Dordogne (région de la pierre) sans vis-à-vis, cuisine équipée, grand séjour, disponible immédiatement — surface et cadre rural alignés; charme en pierre probable à confirmer en visite."
+    },
+    {
+      "source": "lesiteimmo",
+      "url": "https://www.lesiteimmo.com/louer/maison-6pieces/saint-saud-lacoussiere-24470/32554798",
+      "title": "Maison 6 pièces 139 m² à Saint-Saud-Lacoussière (Dordogne)",
+      "price": 870,
+      "location": "Saint-Saud-Lacoussière (24470), Dordogne",
+      "surface": "139 m²",
+      "rooms": "6 pièces, 5 chambres",
+      "photos": ["https://media.studio-net.fr/biens/32554798/x6a2634abdfb79"],
+      "score": 64,
+      "reasons": "Maison sans vis-à-vis avec jardin en plein cœur de Dordogne, disponible immédiatement — calme, nature et surface généreuse alignés, charme de pierre typique de la région à confirmer."
+    },
+    {
+      "source": "lesiteimmo",
+      "url": "https://www.lesiteimmo.com/louer/maison-4pieces/landiras-33720/33349262",
+      "title": "Maison en pierre 4 pièces 113 m² à Landiras (Gironde)",
+      "price": 922,
+      "location": "Landiras (33720), Gironde",
+      "surface": "113 m²",
+      "rooms": "4 pièces, 3 chambres",
+      "photos": ["https://media.studio-net.fr/biens/33349262/x6a265138d9f26"],
+      "score": 63,
+      "reasons": "\"Charme de la pierre\" annoncé explicitement, jardin clos et cuisine aménagée — la pierre est l'un de tes matériaux préférés cités dans toutes tes annonces aimées."
+    },
+    {
+      "source": "lesiteimmo",
+      "url": "https://www.lesiteimmo.com/louer/maison-6pieces/brive-la-gaillarde-19100/33329340",
+      "title": "Maison 6 pièces 160 m² à Brive-la-Gaillarde — cheminée et piscine",
+      "price": 1380,
+      "location": "Brive-la-Gaillarde (19100), Corrèze",
+      "surface": "160 m²",
+      "rooms": "6 pièces, 3 chambres",
+      "photos": ["https://media.studio-net.fr/biens/33329340/x6a1feec913e62"],
+      "score": 62,
+      "reasons": "Maison \"charmante\" avec cheminée, cuisine équipée, terrasse et piscine dans jardin verdoyant — cheminée et espace extérieur parmi les préférences, beaux volumes à prix limite."
+    },
+    {
+      "source": "lesiteimmo",
+      "url": "https://www.lesiteimmo.com/louer/maison-6pieces/beuzeville-27210/33328716",
+      "title": "Maison rénovée 6 pièces 132 m² à Beuzeville (Eure)",
+      "price": 1110,
+      "location": "Beuzeville (27210), Eure, Normandie",
+      "surface": "132 m²",
+      "rooms": "6 pièces, 4 chambres",
+      "photos": ["https://media.studio-net.fr/biens/33328716/x6a1fbc9704054"],
+      "score": 55,
+      "reasons": "Maison entièrement rénovée avec cheminée et jardin 230 m², non meublée — cheminée et jardin correspondent aux préférences, belle surface pour le budget."
+    },
+    {
+      "source": "lesiteimmo",
+      "url": "https://www.lesiteimmo.com/louer/maison-4pieces/vic-en-bigorre-65500/33367567",
+      "title": "Maison plain-pied 4 pièces 152 m² à Vic-en-Bigorre — vue Pyrénées",
+      "price": 900,
+      "location": "Vic-en-Bigorre (65500), Hautes-Pyrénées",
+      "surface": "152 m²",
+      "rooms": "4 pièces, 3 chambres",
+      "photos": ["https://media.studio-net.fr/biens/33367567/x6a28f90f20a6d"],
+      "score": 53,
+      "reasons": "Grand terrain clos de 1 700 m² avec terrasse plein sud et vue sur les Pyrénées — espace extérieur exceptionnel et calme résidentiel correspondent; pas de charme ancien confirmé."
+    },
+    {
+      "source": "lesiteimmo",
+      "url": "https://www.lesiteimmo.com/louer/maison-5pieces/teille-44440/33368382",
+      "title": "Maison 5 pièces 106 m² à Teillé (Loire-Atlantique)",
+      "price": 865,
+      "location": "Teillé (44440), Loire-Atlantique",
+      "surface": "106 m²",
+      "rooms": "5 pièces, 4 chambres",
+      "photos": ["https://media.studio-net.fr/biens/33368382/x6a294b7a89445"],
+      "score": 52,
+      "reasons": "Maison familiale au cœur du bourg, calme et jardin, pompe à chaleur — cadre calme et espace extérieur correspondent, disponible immédiatement à prix accessible."
+    }
+  ]
+}
