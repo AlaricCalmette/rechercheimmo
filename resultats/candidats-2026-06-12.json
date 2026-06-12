@@ -1,0 +1,148 @@
+{
+  "candidates": [
+    {
+      "source": "lesiteimmo",
+      "url": "https://www.lesiteimmo.com/louer/maison-4pieces/luynes-37230/31919936",
+      "title": "Maison 4 pièces 94 m² — Luynes (37230)",
+      "price": 950,
+      "location": "Luynes (37230), Indre-et-Loire",
+      "surface": "94 m²",
+      "rooms": "4 pièces, 3 chambres",
+      "photos": ["https://media.studio-net.fr/biens/31919936/x68d3f09f8cc94"],
+      "score": 88,
+      "reasons": "Poutres et cheminée en pierre, cave troglodyte attenante, maison entièrement rénovée en cadre rural sans vis-à-vis — trois préférences récurrentes de tes annonces aimées (charme authentique, cheminée, calme) réunies."
+    },
+    {
+      "source": "lesiteimmo",
+      "url": "https://www.lesiteimmo.com/louer/maison-7pieces/presly-18380/33337033",
+      "title": "Maison bourgeoise 7 pièces 280 m² — Presly (18380)",
+      "price": 1000,
+      "location": "Presly (18380), Cher",
+      "surface": "280 m²",
+      "rooms": "7 pièces, 2 chambres + suite parentale 32 m²",
+      "photos": ["https://media.studio-net.fr/biens/33337033/x6a21cb89aabab"],
+      "score": 85,
+      "reasons": "Élégante demeure bourgeoise avec authenticité préservée, éléments anciens, cheminée, poêle à bois, salons de 35–40 m², vue dégagée sur étang, calme absolu sans vis-à-vis — grand espace de vie et charme sont tes deux signaux les plus forts."
+    },
+    {
+      "source": "lesiteimmo",
+      "url": "https://www.lesiteimmo.com/louer/maison/brains-sur-les-marches-53350/33198319",
+      "title": "Maison familiale en pierre 180 m² — Brains-sur-les-Marches (53350)",
+      "price": 880,
+      "location": "Brains-sur-les-Marches (53350), Mayenne",
+      "surface": "180 m²",
+      "rooms": "5 chambres",
+      "photos": ["https://media.studio-net.fr/biens/33198319/x6a07bb5a4e747"],
+      "score": 76,
+      "reasons": "Maison en pierre à architecture ancienne, insert au séjour, vaste jardin 2 500 m², cuisine aménagée et équipée, cadre calme rural — pierre et calme sont tes valeurs les mieux représentées dans les annonces sauvegardées."
+    },
+    {
+      "source": "lesiteimmo",
+      "url": "https://www.lesiteimmo.com/louer/maison-8pieces/la-chapelle-d-angillon-18380/33273070",
+      "title": "Maison 8 pièces 151 m² — La Chapelle-d'Angillon (18380)",
+      "price": 950,
+      "location": "La Chapelle-d'Angillon (18380), Cher",
+      "surface": "151 m²",
+      "rooms": "8 pièces, 4 chambres",
+      "photos": ["https://media.studio-net.fr/biens/33273070/x6a2224a1ce5eb"],
+      "score": 73,
+      "reasons": "\"Bien d'exception, modernité mêlée au charme ancien\", cheminée à foyer ouvert, cuisine équipée, cadre forestier ensoleillé et calme — répond aux préférences charme ancien + cheminée + nature que tu retrouves dans plusieurs de tes coups de cœur."
+    },
+    {
+      "source": "lesiteimmo",
+      "url": "https://www.lesiteimmo.com/louer/maison-6pieces/richelieu-37120/33323607",
+      "title": "Maison de ville 6 pièces 132 m² — Richelieu (37120)",
+      "price": 755,
+      "location": "Richelieu (37120), Indre-et-Loire",
+      "surface": "132 m²",
+      "rooms": "6 pièces, 3 chambres",
+      "photos": ["https://media.studio-net.fr/biens/33323607/x6a1ef27b92c28"],
+      "score": 65,
+      "reasons": "Entièrement rénovée en conservant les matériaux anciens (\"de très belles prestations rarement trouvées en location\"), terrasse, cuisine, orientation sud — matériaux authentiques et cuisine bien aménagée sont deux motifs répétés dans tes notes."
+    },
+    {
+      "source": "lesiteimmo",
+      "url": "https://www.lesiteimmo.com/louer/maison-6pieces/berneuil-17460/33323661",
+      "title": "Maison plain-pied 6 pièces 96 m² — Berneuil (17460)",
+      "price": 830,
+      "location": "Berneuil (17460), Charente-Maritime",
+      "surface": "96 m²",
+      "rooms": "6 pièces, 3 chambres",
+      "photos": ["https://media.studio-net.fr/biens/33323661/x6a1ef3c2d33e9"],
+      "score": 62,
+      "reasons": "Grand séjour chaleureux avec cheminée insert, cadre calme et verdoyant, jardin 952 m² clos, cuisine équipée, orientation sud — cheminée + calme + jardin sont présents dans plusieurs de tes annonces sauvegardées."
+    },
+    {
+      "source": "lesiteimmo",
+      "url": "https://www.lesiteimmo.com/louer/maison-5pieces/talmay-21270/32976489",
+      "title": "Maison de caractère 5 pièces 161 m² — Talmay (21270)",
+      "price": 850,
+      "location": "Talmay (21270), Côte-d'Or",
+      "surface": "161 m²",
+      "rooms": "5 pièces, 3 chambres",
+      "photos": ["https://media.studio-net.fr/biens/32976489/x69c7389b241c5"],
+      "score": 60,
+      "reasons": "\"Spacieux volumes, caractère\", cheminée au séjour, dépendance et courette enclos — volumes généreux et cheminée sont deux éléments récurrents dans tes coups de cœur."
+    },
+    {
+      "source": "lesiteimmo",
+      "url": "https://www.lesiteimmo.com/louer/maison-6pieces/sancerre-18300/33381179",
+      "title": "Maison 6 pièces 128 m² — Sancerre (18300)",
+      "price": 813,
+      "location": "Sancerre (18300), Cher",
+      "surface": "128 m²",
+      "rooms": "6 pièces, 5 chambres",
+      "photos": ["https://media.studio-net.fr/biens/33381179/x6a2b930398e61"],
+      "score": 59,
+      "reasons": "Entièrement rénovée, jardin clos 300 m², terrasse, garage, cuisine équipée, séjour lumineux — terrasse + jardin + cuisine aménagée correspondent aux préférences notées dans tes annonces aimées."
+    },
+    {
+      "source": "lesiteimmo",
+      "url": "https://www.lesiteimmo.com/louer/maison/montabard-61160/33300743",
+      "title": "Maison de campagne 130 m² — Montabard (61160)",
+      "price": 792,
+      "location": "Montabard (61160), Orne, Normandie",
+      "surface": "130 m²",
+      "rooms": "5 pièces, 3 chambres",
+      "photos": ["https://media.studio-net.fr/biens/33300743/x6a19134a04fc5"],
+      "score": 58,
+      "reasons": "\"Charmante maison de campagne entièrement rénovée\", environnement calme sans vis-à-vis, jardin clos — charme rénové et calme absolu sont tes deux critères les plus constants."
+    },
+    {
+      "source": "lesiteimmo",
+      "url": "https://www.lesiteimmo.com/louer/maison-5pieces/villentrois-faverolles-en-berry-36600/33343650",
+      "title": "Maison 5 pièces 101 m² — Villentrois-Faverolles-en-Berry (36600)",
+      "price": 660,
+      "location": "Villentrois-Faverolles-en-Berry (36600), Indre",
+      "surface": "101 m²",
+      "rooms": "5 pièces, 4 chambres",
+      "photos": [],
+      "score": 57,
+      "reasons": "Cheminée insert au séjour, jardin clos, garage, chauffage bois/fuel, greniers — cheminée, jardin clos et volumes pratiques sont des préférences récurrentes dans tes notes."
+    },
+    {
+      "source": "lesiteimmo",
+      "url": "https://www.lesiteimmo.com/louer/maison-5pieces/degre-72550/33375981",
+      "title": "Maison de charme 5 pièces 99 m² — Degré (72550)",
+      "price": 890,
+      "location": "Degré (72550), Sarthe",
+      "surface": "99 m²",
+      "rooms": "5 pièces, 3 chambres",
+      "photos": ["https://media.studio-net.fr/biens/33375981/x6a2af468423d0"],
+      "score": 55,
+      "reasons": "\"Maison de charme\", grande pièce de vie lumineuse, poêle à granulés, cour privative, garage, environnement calme — charme + grand espace de vie + calme sont tes trois préférences les plus citées."
+    },
+    {
+      "source": "lesiteimmo",
+      "url": "https://www.lesiteimmo.com/louer/maison-4pieces/neuville-aux-bois-45170/31331159",
+      "title": "Maison 4 pièces 155 m² — Neuville-aux-Bois (45170)",
+      "price": 820,
+      "location": "Neuville-aux-Bois (45170), Loiret",
+      "surface": "155 m²",
+      "rooms": "4 pièces, 3 chambres",
+      "photos": [],
+      "score": 52,
+      "reasons": "Cheminée/foyer ouvert au salon, grand jardin 1 007 m², terrasse, cuisine aménagée, surface généreuse pour le prix — cheminée + jardin + grands volumes sont des récurrences dans tes sauvegardes."
+    }
+  ]
+}
