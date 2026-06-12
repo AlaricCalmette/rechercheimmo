@@ -1,5 +1,7 @@
 // État courant : données extraites de la page active.
 let current = null;
+// Index de la photo choisie comme couverture (la 1re envoyée à l'API).
+let selectedIndex = 0;
 
 const $ = (id) => document.getElementById(id);
 
@@ -29,7 +31,15 @@ function renderPreview(data) {
   $("title").textContent = data.title || data.url || "(sans titre)";
   $("price").textContent = formatPrice(data.price);
 
-  const photo = data.photos && data.photos[0];
+  const photos = data.photos || [];
+  selectedIndex = 0;
+  renderPhoto();
+  renderThumbs(photos);
+}
+
+// Affiche la photo de couverture courante (celle d'index selectedIndex).
+function renderPhoto() {
+  const photo = current?.photos?.[selectedIndex];
   if (photo) {
     $("photo").src = photo;
     show($("photo"));
@@ -38,6 +48,32 @@ function renderPreview(data) {
     hide($("photo"));
     show($("no-photo"));
   }
+}
+
+// Bande de vignettes : un clic choisit la photo de couverture. Masquée s'il
+// n'y a pas plus d'une photo (rien à choisir).
+function renderThumbs(photos) {
+  const container = $("thumbs");
+  container.innerHTML = "";
+  if (!photos || photos.length < 2) {
+    hide(container);
+    return;
+  }
+  photos.forEach((src, i) => {
+    const img = document.createElement("img");
+    img.src = src;
+    img.className = i === selectedIndex ? "thumb selected" : "thumb";
+    img.alt = `Photo ${i + 1}`;
+    img.addEventListener("click", () => {
+      selectedIndex = i;
+      renderPhoto();
+      container.querySelectorAll(".thumb").forEach((t, j) =>
+        t.classList.toggle("selected", j === selectedIndex)
+      );
+    });
+    container.appendChild(img);
+  });
+  show(container);
 }
 
 async function extractFromActiveTab() {
@@ -66,6 +102,13 @@ async function save() {
   btn.disabled = true;
   btn.textContent = "Sauvegarde…";
 
+  // On place la photo choisie en tête : le site utilise photos[0] comme couverture.
+  const photos = current.photos || [];
+  const ordered =
+    selectedIndex > 0
+      ? [photos[selectedIndex], ...photos.filter((_, i) => i !== selectedIndex)]
+      : photos;
+
   try {
     const res = await fetch(`${apiUrl.replace(/\/$/, "")}/api/listings`, {
       method: "POST",
@@ -73,7 +116,11 @@ async function save() {
         "Content-Type": "application/json",
         Authorization: `Bearer ${secret}`,
       },
-      body: JSON.stringify({ ...current, notes: $("notes").value.trim() }),
+      body: JSON.stringify({
+        ...current,
+        photos: ordered,
+        notes: $("notes").value.trim(),
+      }),
     });
     if (!res.ok) {
       const text = await res.text();

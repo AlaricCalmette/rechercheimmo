@@ -76,7 +76,47 @@ le rapport, pour que l'utilisateur puisse le vérifier et le corriger) :
   / luminosité, calme, proximité (écoles, transports, commerces), parking/garage,
   étage élevé, charme ancien, état rénové, volume/séjour, vue…
 
-Présente le profil sous forme de liste ordonnée par importance.
+#### Analyse visuelle des photos de couverture
+
+Les notes disent ce que l'utilisateur a *écrit* ; la **photo qu'il a choisie**
+de sauvegarder dit ce qui l'a *séduit visuellement*. Analyse-les pour enrichir
+les préférences qualitatives avec des caractéristiques que les notes ne capturent
+pas toujours.
+
+1. Télécharge les photos de couverture (`photos[0]`) de toutes les annonces
+   aimées :
+
+   ```bash
+   node scripts/download_photos.mjs
+   ```
+
+   Le script imprime un JSON `[{ url, title, photo, file }, …]` où `file` est le
+   chemin local de l'image téléchargée.
+
+2. **Ouvre chaque `file` avec l'outil Read** (lecture d'image) et observe-la.
+   Pour chacune, relève les caractéristiques visuelles dominantes, par exemple :
+   - **type & style de bâti** : maison de ville / longère / appartement
+     haussmannien / contemporain / pierre / colombages…
+   - **matériaux & charme** : pierre apparente, poutres, parquet, tomettes,
+     cheminée, grandes baies, verrière…
+   - **état** : rénové / à rafraîchir / neuf ;
+   - **extérieur** : jardin, terrasse, balcon, piscine, cour, vis-à-vis ;
+   - **lumière & volumes** : très lumineux, plafonds hauts, séjour ouvert ;
+   - **environnement** : urbain dense, village, campagne, vue dégagée, mer…
+
+3. **Agrège** ces observations sur l'ensemble des photos : ce qui revient
+   souvent (ex. « pierre apparente », « jardin arboré », « beaucoup de lumière »)
+   est un signal de goût **fort**, au même titre que les thèmes récurrents des
+   notes — fusionne-les dans la liste des préférences qualitatives, en pondérant
+   par fréquence.
+
+Robustesse : si le script échoue, si une annonce n'a pas de photo, ou si une
+image est illisible, **continue sans bloquer** — l'analyse visuelle enrichit le
+profil mais les notes restent la source primaire. Mentionne-le dans « Limites ».
+
+Présente le profil sous forme de liste ordonnée par importance. Quand une
+préférence vient surtout de l'analyse des photos, signale-le brièvement (ex.
+« charme ancien — pierre & poutres, récurrent sur les photos aimées »).
 
 ### Étape 2 — Chercher largement
 
