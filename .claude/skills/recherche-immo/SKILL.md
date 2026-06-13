@@ -76,22 +76,24 @@ le rapport, pour que l'utilisateur puisse le vérifier et le corriger) :
   / luminosité, calme, proximité (écoles, transports, commerces), parking/garage,
   étage élevé, charme ancien, état rénové, volume/séjour, vue…
 
-#### Analyse visuelle des photos de couverture
+#### Analyse visuelle des photos sélectionnées
 
-Les notes disent ce que l'utilisateur a *écrit* ; la **photo qu'il a choisie**
-de sauvegarder dit ce qui l'a *séduit visuellement*. Analyse-les pour enrichir
-les préférences qualitatives avec des caractéristiques que les notes ne capturent
-pas toujours.
+Les notes disent ce que l'utilisateur a *écrit* ; les **photos qu'il a choisi**
+de sauvegarder disent ce qui l'a *séduit visuellement*. Il sélectionne dans
+l'extension les photos à garder : **analyse-les toutes**, pas seulement la
+couverture, pour enrichir les préférences qualitatives avec des caractéristiques
+que les notes ne capturent pas toujours.
 
-1. Télécharge les photos de couverture (`photos[0]`) de toutes les annonces
-   aimées :
+1. Télécharge **toutes les photos** de toutes les annonces aimées :
 
    ```bash
    node scripts/download_photos.mjs
    ```
 
-   Le script imprime un JSON `[{ url, title, photo, file }, …]` où `file` est le
-   chemin local de l'image téléchargée.
+   Le script imprime un JSON `[{ url, title, photoIndex, photo, file }, …]` où
+   `file` est le chemin local de l'image téléchargée et `photoIndex` sa position
+   dans l'annonce (0 = couverture). Plusieurs entrées peuvent partager la même
+   `url` : ce sont les différentes photos d'une même annonce.
 
 2. **Ouvre chaque `file` avec l'outil Read** (lecture d'image) et observe-la.
    Pour chacune, relève les caractéristiques visuelles dominantes, par exemple :
@@ -104,11 +106,14 @@ pas toujours.
    - **lumière & volumes** : très lumineux, plafonds hauts, séjour ouvert ;
    - **environnement** : urbain dense, village, campagne, vue dégagée, mer…
 
-3. **Agrège** ces observations sur l'ensemble des photos : ce qui revient
-   souvent (ex. « pierre apparente », « jardin arboré », « beaucoup de lumière »)
-   est un signal de goût **fort**, au même titre que les thèmes récurrents des
-   notes — fusionne-les dans la liste des préférences qualitatives, en pondérant
-   par fréquence.
+3. **Agrège par annonce puis sur l'ensemble.** Pour chaque annonce, recoupe ses
+   différentes photos (intérieur, extérieur, vue…) pour une lecture complète du
+   bien ; puis, sur toutes les annonces, identifie ce qui **revient souvent**
+   (ex. « pierre apparente », « jardin arboré », « beaucoup de lumière ») : c'est
+   un signal de goût **fort**, au même titre que les thèmes récurrents des notes
+   — fusionne-les dans la liste des préférences qualitatives, en pondérant par
+   fréquence (une caractéristique présente dans plusieurs annonces pèse plus
+   qu'une vue dans plusieurs photos d'une seule annonce).
 
 Robustesse : si le script échoue, si une annonce n'a pas de photo, ou si une
 image est illisible, **continue sans bloquer** — l'analyse visuelle enrichit le

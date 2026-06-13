@@ -57,19 +57,57 @@ body {
   margin-bottom: 8px;
 }
 
+.thumb-wrap {
+  position: relative;
+  cursor: pointer;
+  border-radius: 6px;
+  border: 2px solid transparent;
+  overflow: hidden;
+}
+
 .thumb {
   width: 100%;
   aspect-ratio: 1 / 1;
   object-fit: cover;
-  border-radius: 6px;
   background: #0a0c10;
-  border: 2px solid transparent;
-  cursor: pointer;
   display: block;
 }
 
-.thumb.selected {
+.thumb-wrap.selected {
   border-color: var(--accent);
+}
+
+/* Vignette non cochée : grisée pour bien distinguer la sélection. */
+.thumb-wrap:not(.selected) .thumb {
+  opacity: 0.4;
+}
+
+/* Badge d'ordre (1 = couverture), visible seulement si la vignette est cochée. */
+.thumb-num {
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  min-width: 16px;
+  height: 16px;
+  padding: 0 3px;
+  box-sizing: border-box;
+  border-radius: 999px;
+  background: var(--accent);
+  color: #fff;
+  font-size: 10px;
+  font-weight: 600;
+  line-height: 16px;
+  text-align: center;
+}
+
+.thumb-wrap:not(.selected) .thumb-num {
+  display: none;
+}
+
+.thumbs-hint {
+  color: var(--muted);
+  font-size: 11px;
+  margin-bottom: 8px;
 }
 
 .badge {

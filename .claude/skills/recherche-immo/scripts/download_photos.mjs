@@ -1,14 +1,18 @@
 #!/usr/bin/env node
-// Télécharge la photo de couverture (photos[0]) de chaque annonce aimée dans un
-// dossier temporaire, afin que le skill puisse l'OUVRIR avec l'outil Read et
-// l'analyser visuellement (on ne peut pas lire une image directement par URL).
+// Télécharge TOUTES les photos sélectionnées de chaque annonce aimée dans un
+// dossier temporaire, afin que le skill puisse les OUVRIR avec l'outil Read et
+// les analyser visuellement (on ne peut pas lire une image directement par URL).
 //
-// Pour chaque annonce ayant au moins une photo, écrit le fichier image et
-// imprime en JSON un tableau d'objets : { url, title, photo, file }.
-// - url   : l'URL de l'annonce (clé pour relier à l'annonce d'origine)
-// - title : le titre de l'annonce
-// - photo : l'URL de la photo de couverture
-// - file  : le chemin local du fichier téléchargé (à passer à Read)
+// L'utilisateur choisit dans l'extension les photos à sauvegarder ; elles sont
+// toutes pertinentes pour cerner son goût, pas seulement la couverture.
+//
+// Pour chaque photo de chaque annonce, écrit le fichier image et imprime en
+// JSON un tableau d'objets : { url, title, photoIndex, photo, file }.
+// - url        : l'URL de l'annonce (clé pour relier à l'annonce d'origine)
+// - title      : le titre de l'annonce
+// - photoIndex : la position de la photo dans l'annonce (0 = couverture)
+// - photo      : l'URL de la photo
+// - file       : le chemin local du fichier téléchargé (à passer à Read)
 //
 // Config par variables d'environnement (mêmes que fetch_listings.mjs) :
 //   RECHERCHEIMMO_API_URL    (défaut: http://localhost:3000)
@@ -61,20 +65,29 @@ const out = [];
 
 for (let i = 0; i < listings.length; i++) {
   const item = listings[i];
-  const photo = Array.isArray(item.photos) ? item.photos[0] : null;
-  if (!photo) continue;
-  try {
-    const res = await fetch(photo);
-    if (!res.ok) {
-      console.error(`Photo ignorée (${res.status}) : ${photo}`);
-      continue;
+  const photos = Array.isArray(item.photos) ? item.photos : [];
+  for (let j = 0; j < photos.length; j++) {
+    const photo = photos[j];
+    if (!photo) continue;
+    try {
+      const res = await fetch(photo);
+      if (!res.ok) {
+        console.error(`Photo ignorée (${res.status}) : ${photo}`);
+        continue;
+      }
+      const buf = Buffer.from(await res.arrayBuffer());
+      const file = join(dir, `${i}-${j}${pickExt(photo, res.headers.get("content-type"))}`);
+      await writeFile(file, buf);
+      out.push({
+        url: item.url,
+        title: item.title ?? null,
+        photoIndex: j,
+        photo,
+        file,
+      });
+    } catch (e) {
+      console.error(`Échec téléchargement ${photo} : ${e.message}`);
     }
-    const buf = Buffer.from(await res.arrayBuffer());
-    const file = join(dir, `${i}${pickExt(photo, res.headers.get("content-type"))}`);
-    await writeFile(file, buf);
-    out.push({ url: item.url, title: item.title ?? null, photo, file });
-  } catch (e) {
-    console.error(`Échec téléchargement ${photo} : ${e.message}`);
   }
 }
 

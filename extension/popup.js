@@ -1,7 +1,8 @@
 // État courant : données extraites de la page active.
 let current = null;
-// Index de la photo choisie comme couverture (la 1re envoyée à l'API).
-let selectedIndex = 0;
+// Indices des photos choisies, dans l'ordre de sélection. La première est la
+// couverture (photos[0] côté site). Par défaut, toutes les photos sont cochées.
+let selected = [];
 
 const $ = (id) => document.getElementById(id);
 
@@ -31,15 +32,17 @@ function renderPreview(data) {
   $("title").textContent = data.title || data.url || "(sans titre)";
   $("price").textContent = formatPrice(data.price);
 
-  const photos = data.photos || [];
-  selectedIndex = 0;
+  // Par défaut aucune photo cochée : l'utilisateur choisit explicitement.
+  selected = [];
   renderPhoto();
-  renderThumbs(photos);
+  renderThumbs(data.photos || []);
 }
 
-// Affiche la photo de couverture courante (celle d'index selectedIndex).
+// Affiche la photo de couverture = la 1re photo cochée. Tant que rien n'est
+// coché, on montre quand même la 1re photo disponible (aperçu neutre).
 function renderPhoto() {
-  const photo = current?.photos?.[selectedIndex];
+  const photos = current?.photos || [];
+  const photo = selected.length > 0 ? photos[selected[0]] : photos[0];
   if (photo) {
     $("photo").src = photo;
     show($("photo"));
@@ -50,30 +53,57 @@ function renderPhoto() {
   }
 }
 
-// Bande de vignettes : un clic choisit la photo de couverture. Masquée s'il
-// n'y a pas plus d'une photo (rien à choisir).
+// Ajoute / retire une photo de la sélection (en préservant l'ordre des clics).
+function toggle(i) {
+  const pos = selected.indexOf(i);
+  if (pos === -1) selected.push(i);
+  else selected.splice(pos, 1);
+}
+
+// Bande de vignettes : clic = cocher/décocher. Un badge numéroté rappelle
+// l'ordre (1 = couverture). Masquée s'il n'y a pas plus d'une photo.
 function renderThumbs(photos) {
   const container = $("thumbs");
+  const hint = $("thumbs-hint");
   container.innerHTML = "";
   if (!photos || photos.length < 2) {
     hide(container);
+    hide(hint);
     return;
   }
   photos.forEach((src, i) => {
+    const wrap = document.createElement("div");
+    wrap.className = "thumb-wrap";
+
     const img = document.createElement("img");
     img.src = src;
-    img.className = i === selectedIndex ? "thumb selected" : "thumb";
+    img.className = "thumb";
     img.alt = `Photo ${i + 1}`;
-    img.addEventListener("click", () => {
-      selectedIndex = i;
+
+    const badge = document.createElement("span");
+    badge.className = "thumb-num";
+
+    wrap.appendChild(img);
+    wrap.appendChild(badge);
+    wrap.addEventListener("click", () => {
+      toggle(i);
+      refreshThumbs(container);
       renderPhoto();
-      container.querySelectorAll(".thumb").forEach((t, j) =>
-        t.classList.toggle("selected", j === selectedIndex)
-      );
     });
-    container.appendChild(img);
+    container.appendChild(wrap);
   });
+  refreshThumbs(container);
   show(container);
+  show(hint);
+}
+
+// Met à jour l'état visuel des vignettes selon `selected` (surbrillance + n°).
+function refreshThumbs(container) {
+  container.querySelectorAll(".thumb-wrap").forEach((wrap, i) => {
+    const pos = selected.indexOf(i);
+    wrap.classList.toggle("selected", pos !== -1);
+    wrap.querySelector(".thumb-num").textContent = pos === -1 ? "" : pos + 1;
+  });
 }
 
 async function extractFromActiveTab() {
@@ -102,12 +132,14 @@ async function save() {
   btn.disabled = true;
   btn.textContent = "Sauvegarde…";
 
-  // On place la photo choisie en tête : le site utilise photos[0] comme couverture.
+  // On n'envoie que les photos cochées, dans l'ordre de sélection : la 1re sert
+  // de couverture (le site utilise photos[0]). Si rien n'est coché, on envoie
+  // seulement la première photo (celle affichée en aperçu).
   const photos = current.photos || [];
   const ordered =
-    selectedIndex > 0
-      ? [photos[selectedIndex], ...photos.filter((_, i) => i !== selectedIndex)]
-      : photos;
+    selected.length > 0
+      ? selected.map((i) => photos[i])
+      : photos.slice(0, 1);
 
   try {
     const res = await fetch(`${apiUrl.replace(/\/$/, "")}/api/listings`, {
