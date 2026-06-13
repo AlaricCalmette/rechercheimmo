@@ -134,6 +134,13 @@ a {
   white-space: pre-wrap;
 }
 
+/* Ce qui ne plaît pas : même bloc, teinte rouge pour le distinguer des notes. */
+.note-neg {
+  background: #2a1e1e;
+  border-left-color: #ff7a7a;
+  margin-top: 6px;
+}
+
 .badge {
   display: inline-block;
   font-size: 11px;

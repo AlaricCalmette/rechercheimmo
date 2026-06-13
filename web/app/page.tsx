@@ -42,6 +42,7 @@ function Card({ item }: { item: Listing }) {
           {item.location && <span>{item.location}</span>}
         </div>
         {item.notes && <div className="note">{item.notes}</div>}
+        {item.dislikes && <div className="note note-neg">{item.dislikes}</div>}
         <div className="actions">
           <a href={item.url} target="_blank" rel="noreferrer">
             Voir l&apos;annonce →

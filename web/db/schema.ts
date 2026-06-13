@@ -19,6 +19,7 @@ export const listings = pgTable("listings", {
   description: text("description"),
   photos: jsonb("photos").$type<string[]>().default([]),
   notes: text("notes"),
+  dislikes: text("dislikes"),
   raw: jsonb("raw"),
   createdAt: timestamp("created_at", { withTimezone: true })
     .defaultNow()

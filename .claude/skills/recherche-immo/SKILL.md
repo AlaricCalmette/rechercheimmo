@@ -51,9 +51,11 @@ node scripts/fetch_listings.mjs
 ```
 
 Il imprime en JSON toutes les annonces sauvegardées. Chaque annonce contient :
-`source, url, title, price, location, surface, rooms, description, notes, raw,
-createdAt`. Si la liste est vide, arrête-toi et signale qu'il faut d'abord
-sauvegarder des annonces depuis l'extension.
+`source, url, title, price, location, surface, rooms, description, notes,
+dislikes, raw, createdAt`. Le champ `notes` dit **ce qui plaît** à l'utilisateur,
+`dislikes` **ce qui lui déplaît** dans cette annonce. Si la liste est vide,
+arrête-toi et signale qu'il faut d'abord sauvegarder des annonces depuis
+l'extension.
 
 ### Étape 1 — Déduire le profil de critères
 
@@ -75,6 +77,14 @@ le rapport, pour que l'utilisateur puisse le vérifier et le corriger) :
   annonces compte plus. Exemples de thèmes : terrasse/balcon, jardin, exposition
   / luminosité, calme, proximité (écoles, transports, commerces), parking/garage,
   étage élevé, charme ancien, état rénové, volume/séjour, vue…
+- **Répulsions (ce qui déplaît)** : extrais des champs `dislikes` les défauts que
+  l'utilisateur signale (ex. route passante, vis-à-vis, rez-de-chaussée, cuisine
+  à refaire, sans extérieur, sombre, travaux lourds, copropriété chargée…).
+  Construis-en une **liste de critères négatifs**, pondérée par fréquence :
+  un défaut rejeté sur plusieurs annonces est un signal **fort**. Distingue les
+  défauts **rédhibitoires** (récurrents / formulés catégoriquement) des simples
+  **moins-bien** (pénalisants mais non éliminatoires). Ces répulsions sont aussi
+  précieuses que les préférences : elles disent ce qu'il faut **éviter**.
 
 #### Analyse visuelle des photos sélectionnées
 
@@ -170,7 +180,9 @@ D'abord des **filtres éliminatoires** (ne garde que les biens plausibles) :
 - localisation : **pas un filtre par défaut** — n'écarte sur la zone que si
   l'utilisateur a fixé une région précise ;
 - prix très au-dessus du budget max + tolérance → écarter ;
-- type de bien différent de la cible → écarter.
+- type de bien différent de la cible → écarter ;
+- **défaut rédhibitoire présent** (un critère négatif fort de la liste des
+  répulsions, ex. route passante, rez-de-chaussée, gros travaux) → écarter.
 
 Puis un **score 0-100** pour classer, pondéré ainsi (le qualitatif domine,
 volontairement) :
@@ -178,10 +190,16 @@ volontairement) :
 - Adéquation surface / pièces : ~20 pts.
 - Budget (sous le max sans être suspectement bas) : ~15 pts.
 - Localisation précise (quartier exactement recherché) : ~15 pts.
+- **Malus répulsions : jusqu'à −40 pts** — retranche des points pour chaque
+  critère négatif (non rédhibitoire) présent dans le candidat. Un bien qui coche
+  des préférences mais traîne plusieurs défauts signalés doit reculer au
+  classement.
 
 Pour chaque candidat retenu, rédige un `reasons` court (1-2 phrases) **citant
-les préférences précises** qui matchent — c'est ce qui rend le classement
-crédible. Garde le **top 15-25**.
+les préférences précises** qui matchent — et, le cas échéant, **signale les
+défauts évités** (« aucun des points que tu rejettes : pas de vis-à-vis, pas de
+travaux »). Si un candidat présente un défaut mineur connu, mentionne-le
+honnêtement plutôt que de le cacher. Garde le **top 15-25**.
 
 ### Étape 4 — Livrer (les deux sorties)
 
@@ -212,12 +230,13 @@ un.
 - **Type** : <type(s)>
 - **Surface / pièces** : <fourchettes>
 - **Préférences** (par importance) : 1) … 2) … 3) …
+- **À éviter** (répulsions) : <critères négatifs ; ⛔ = rédhibitoire>
 
 ## Top annonces
 ### 1. <titre> — <prix> — score <n>/100
 - 📍 <localisation> · <surface> · <pièces>
 - 🔗 <url>  ·  source : <portail>
-- ✅ Pourquoi : <reasons — préférences matchées>
+- ✅ Pourquoi : <reasons — préférences matchées ; défauts évités>
 
 ### 2. …
 

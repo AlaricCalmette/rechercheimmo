@@ -75,6 +75,7 @@ export async function POST(req: NextRequest) {
     description: toStr(body.description),
     photos,
     notes: toStr(body.notes),
+    dislikes: toStr(body.dislikes),
     raw: (body.raw as unknown) ?? null,
   };
 

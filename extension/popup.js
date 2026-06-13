@@ -152,6 +152,7 @@ async function save() {
         ...current,
         photos: ordered,
         notes: $("notes").value.trim(),
+        dislikes: $("dislikes").value.trim(),
       }),
     });
     if (!res.ok) {
