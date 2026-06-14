@@ -232,3 +232,87 @@ button.primary {
   font-size: 13px;
   margin-bottom: 12px;
 }
+
+/* --- Page profil (lecture seule) --- */
+.readonly-hint {
+  color: var(--muted);
+  font-size: 13px;
+  margin: 0 0 20px;
+}
+
+.profile-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 12px;
+  margin-bottom: 28px;
+}
+
+.profile-field {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 12px 14px;
+}
+
+.profile-label {
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--muted);
+}
+
+.profile-value {
+  font-size: 15px;
+  font-weight: 600;
+}
+
+.profile-section {
+  margin-bottom: 24px;
+}
+
+.profile-section h2 {
+  font-size: 15px;
+  margin: 0 0 10px;
+}
+
+.chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+  border-radius: 999px;
+  padding: 4px 10px;
+  border: 1px solid var(--border);
+}
+
+.chip-pos {
+  background: var(--accent-soft);
+  border-color: var(--accent);
+}
+
+.chip-neg {
+  background: #2a1e1e;
+  border-color: #ff7a7a;
+}
+
+.chip-redhibitory {
+  font-weight: 600;
+}
+
+.chip-weight {
+  font-size: 11px;
+  color: var(--muted);
+  background: rgba(255, 255, 255, 0.08);
+  border-radius: 999px;
+  padding: 0 6px;
+  line-height: 16px;
+}

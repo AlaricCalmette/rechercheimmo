@@ -72,6 +72,7 @@ export default async function Home() {
           Mes annonces<span className="count">{rows.length} sauvegardée{rows.length > 1 ? "s" : ""}</span>
         </h1>
         <nav style={{ display: "flex", gap: 12, alignItems: "center" }}>
+          <a href="/profil">Mon profil →</a>
           <a href="/candidats">Candidats du skill →</a>
           <form action={logout}>
             <button type="submit">Se déconnecter</button>

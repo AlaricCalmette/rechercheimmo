@@ -72,6 +72,7 @@ export default async function Candidats() {
         </h1>
         <nav style={{ display: "flex", gap: 12, alignItems: "center" }}>
           <a href="/">← Mes annonces</a>
+          <a href="/profil">Mon profil →</a>
           <form action={logout}>
             <button type="submit">Se déconnecter</button>
           </form>

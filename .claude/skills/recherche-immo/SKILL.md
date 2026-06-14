@@ -57,10 +57,74 @@ dislikes, raw, createdAt`. Le champ `notes` dit **ce qui plaît** à l'utilisate
 arrête-toi et signale qu'il faut d'abord sauvegarder des annonces depuis
 l'extension.
 
-### Étape 1 — Déduire le profil de critères
+### Étape 1 — Charger et affiner le profil de critères
 
-À partir des annonces, synthétise un profil **explicite** (tu l'afficheras dans
-le rapport, pour que l'utilisateur puisse le vérifier et le corriger) :
+Le profil est un **modèle vivant** qui s'enrichit à chaque passage : **ne le
+reconstruis pas de zéro**. Charge celui déjà déduit lors des exécutions
+précédentes et **affine-le** avec les nouvelles annonces.
+
+Le profil est stocké **en base** (et consultable en lecture seule sur la page
+`/profil` du site). On le lit et on le réécrit via des scripts dédiés. Schéma de
+l'objet profil :
+
+```json
+{
+  "version": 1,
+  "updatedAt": "2026-06-13T08:00:00Z",
+  "budget": { "min": 200000, "max": 450000 },
+  "locations": ["Nantes (44)", "Vannes (56)"],
+  "propertyTypes": ["maison"],
+  "surface": { "min": 80, "max": 160 },
+  "rooms": { "min": 4, "max": 6 },
+  "preferences": [
+    { "theme": "pierre apparente", "weight": 5, "sources": ["notes", "photos"] }
+  ],
+  "repulsions": [
+    { "theme": "route passante", "weight": 4, "redhibitory": true }
+  ],
+  "analyzedListings": {
+    "https://...": {
+      "analyzedAt": "2026-06-10T...",
+      "photoFindings": ["pierre apparente", "jardin arboré", "beaucoup de lumière"],
+      "notesThemes": ["terrasse"],
+      "dislikeThemes": ["route passante"]
+    }
+  }
+}
+```
+
+Procédure d'affinage :
+
+1. **Charge le profil** existant :
+
+   ```bash
+   node scripts/get_profile.mjs
+   ```
+
+   Il imprime l'objet profil en JSON, ou `null` si aucun n'existe encore (premier
+   passage : pars d'un profil vide et construis-le).
+2. **Identifie les nouveautés** : compare les `url` des annonces récupérées à la
+   clé `analyzedListings`. Ne retraite que les **annonces nouvelles** (absentes
+   du cache). Les annonces déjà analysées **réutilisent leurs résultats en
+   cache** — c'est ce qui évite de tout refaire (et de re-télécharger / re-lire
+   toutes les photos) à chaque exécution.
+3. **Pour chaque nouvelle annonce**, extrais ses thèmes de `notes`, de
+   `dislikes`, et — via l'analyse visuelle ci-dessous — ses `photoFindings`, puis
+   ajoute l'entrée dans `analyzedListings`.
+4. **Mets à jour les agrégats** (`budget`, `locations`, `surface`, `rooms`,
+   `preferences`, `repulsions`) en intégrant ces nouveautés : augmente le `weight`
+   des thèmes confirmés, ajoute les thèmes nouveaux, élargis prudemment les
+   fourchettes. **Ne supprime pas** ce qui existe sans raison ; tu affines, tu ne
+   réinitialises pas.
+5. **Si une annonce aimée a disparu** de la liste (supprimée par l'utilisateur),
+   tu peux retirer son entrée du cache et atténuer les poids qu'elle portait.
+
+Le profil sera **réécrit en base** en fin d'exécution (Étape 4). Sur le site, il
+est **consultable mais non éditable** : il se met à jour uniquement via le skill,
+à partir des annonces aimées et annotées depuis l'extension.
+
+À partir des annonces (et du profil chargé), le profil **explicite** que tu
+afficheras dans le rapport contient :
 
 - **Budget** : déduis une fourchette des prix sauvegardés. Vise un *max* autour
   du prix le plus haut aimé (tolérance ~ +10 %), et un *min* raisonnable pour ne
@@ -94,7 +158,12 @@ l'extension les photos à garder : **analyse-les toutes**, pas seulement la
 couverture, pour enrichir les préférences qualitatives avec des caractéristiques
 que les notes ne capturent pas toujours.
 
-1. Télécharge **toutes les photos** de toutes les annonces aimées :
+**N'analyse que les annonces nouvelles** (absentes de `analyzedListings`) : les
+`photoFindings` des annonces déjà vues sont en cache dans le profil, inutile
+de re-télécharger et re-lire leurs photos. C'est l'étape la plus coûteuse —
+c'est précisément ce que le cache évite de refaire.
+
+1. Télécharge **toutes les photos** des annonces aimées :
 
    ```bash
    node scripts/download_photos.mjs
@@ -103,10 +172,13 @@ que les notes ne capturent pas toujours.
    Le script imprime un JSON `[{ url, title, photoIndex, photo, file }, …]` où
    `file` est le chemin local de l'image téléchargée et `photoIndex` sa position
    dans l'annonce (0 = couverture). Plusieurs entrées peuvent partager la même
-   `url` : ce sont les différentes photos d'une même annonce.
+   `url` : ce sont les différentes photos d'une même annonce. **Ignore les `url`
+   déjà présentes dans `analyzedListings`** et n'ouvre que les fichiers des
+   annonces nouvelles.
 
-2. **Ouvre chaque `file` avec l'outil Read** (lecture d'image) et observe-la.
-   Pour chacune, relève les caractéristiques visuelles dominantes, par exemple :
+2. **Ouvre chaque `file` (annonce nouvelle) avec l'outil Read** (lecture d'image)
+   et observe-la. Pour chacune, relève les caractéristiques visuelles dominantes,
+   par exemple :
    - **type & style de bâti** : maison de ville / longère / appartement
      haussmannien / contemporain / pierre / colombages…
    - **matériaux & charme** : pierre apparente, poutres, parquet, tomettes,
@@ -116,9 +188,13 @@ que les notes ne capturent pas toujours.
    - **lumière & volumes** : très lumineux, plafonds hauts, séjour ouvert ;
    - **environnement** : urbain dense, village, campagne, vue dégagée, mer…
 
-3. **Agrège par annonce puis sur l'ensemble.** Pour chaque annonce, recoupe ses
-   différentes photos (intérieur, extérieur, vue…) pour une lecture complète du
-   bien ; puis, sur toutes les annonces, identifie ce qui **revient souvent**
+3. **Enregistre** les `photoFindings` de chaque nouvelle annonce dans son entrée
+   `analyzedListings` du profil (cache pour les prochains passages).
+
+4. **Agrège par annonce puis sur l'ensemble**, en repartant des agrégats déjà
+   dans le profil. Pour chaque annonce, recoupe ses différentes photos
+   (intérieur, extérieur, vue…) pour une lecture complète du bien ; puis, sur
+   toutes les annonces (cache compris), identifie ce qui **revient souvent**
    (ex. « pierre apparente », « jardin arboré », « beaucoup de lumière ») : c'est
    un signal de goût **fort**, au même titre que les thèmes récurrents des notes
    — fusionne-les dans la liste des préférences qualitatives, en pondérant par
@@ -201,15 +277,25 @@ défauts évités** (« aucun des points que tu rejettes : pas de vis-à-vis, pa
 travaux »). Si un candidat présente un défaut mineur connu, mentionne-le
 honnêtement plutôt que de le cacher. Garde le **top 15-25**.
 
-### Étape 4 — Livrer (les deux sorties)
+### Étape 4 — Livrer (les trois sorties)
 
-**a) Rapport Markdown** dans le repo, fichier daté `resultats/AAAA-MM-JJ.md`
+**a) Profil mis à jour** : écris le profil affiné dans un JSON temporaire (avec
+`updatedAt` à la date du jour) puis enregistre-le en base :
+
+```bash
+node scripts/save_profile.mjs <chemin-du-json>
+```
+
+C'est la **mémoire** du skill : il sera rechargé au prochain passage pour
+repartir de là, et devient visible sur la page `/profil` du site.
+
+**b) Rapport Markdown** dans le repo, fichier daté `resultats/AAAA-MM-JJ.md`
 (crée le dossier `resultats/` au besoin), suivant le modèle ci-dessous. Si tu
-commits ce rapport (cas d'une routine sur un repo), fais-le **directement sur la
-branche `main`** (`git add resultats/ && git commit && git push origin main`) —
-**ne crée pas de branche ni de pull request**.
+commits (cas d'une routine sur un repo), fais-le **directement sur la branche
+`main`** (`git add resultats/ && git commit && git push origin main`) — **ne crée
+pas de branche ni de pull request**.
 
-**b) Envoi sur le site** : écris un JSON temporaire (modèle plus bas) puis :
+**c) Envoi sur le site** : écris un JSON temporaire (modèle plus bas) puis :
 
 ```bash
 node scripts/post_candidates.mjs <chemin-du-json>

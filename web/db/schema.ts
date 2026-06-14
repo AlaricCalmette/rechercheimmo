@@ -52,3 +52,38 @@ export const candidates = pgTable("candidates", {
 
 export type Candidate = typeof candidates.$inferSelect;
 export type NewCandidate = typeof candidates.$inferInsert;
+
+// Forme du profil de goût déduit et affiné par le skill au fil des passages.
+export type ProfileData = {
+  version?: number;
+  updatedAt?: string;
+  budget?: { min: number | null; max: number | null };
+  locations?: string[];
+  propertyTypes?: string[];
+  surface?: { min: number | null; max: number | null };
+  rooms?: { min: number | null; max: number | null };
+  preferences?: { theme: string; weight: number; sources?: string[] }[];
+  repulsions?: { theme: string; weight: number; redhibitory?: boolean }[];
+  analyzedListings?: Record<
+    string,
+    {
+      analyzedAt?: string;
+      photoFindings?: string[];
+      notesThemes?: string[];
+      dislikeThemes?: string[];
+    }
+  >;
+};
+
+// Profil de goût persistant du skill (mémoire entre exécutions). Table à une
+// seule ligne (id = "default") : le skill le lit, l'affine, le réécrit ; le site
+// l'affiche en lecture seule sur /profil.
+export const profile = pgTable("profile", {
+  id: text("id").primaryKey().default("default"),
+  data: jsonb("data").$type<ProfileData>(),
+  updatedAt: timestamp("updated_at", { withTimezone: true })
+    .defaultNow()
+    .notNull(),
+});
+
+export type Profile = typeof profile.$inferSelect;
