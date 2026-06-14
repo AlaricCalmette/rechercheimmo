@@ -2,6 +2,7 @@ import { desc } from "drizzle-orm";
 import { db } from "@/lib/db";
 import { listings, type Listing } from "@/db/schema";
 import { deleteListing, logout } from "./actions";
+import { Gallery } from "./Gallery";
 
 export const dynamic = "force-dynamic";
 
@@ -15,16 +16,10 @@ function formatPrice(price: number | null): string | null {
 }
 
 function Card({ item }: { item: Listing }) {
-  const photo = item.photos?.[0] ?? null;
   const price = formatPrice(item.price);
   return (
     <div className="card">
-      {photo ? (
-        // eslint-disable-next-line @next/next/no-img-element
-        <img className="photo" src={photo} alt={item.title ?? ""} loading="lazy" />
-      ) : (
-        <div className="no-photo">Pas de photo</div>
-      )}
+      <Gallery photos={item.photos ?? []} alt={item.title ?? ""} />
       <div className="body">
         <span className="badge">{item.source}</span>
         <a
