@@ -40,6 +40,25 @@ export async function deleteListing(formData: FormData) {
   }
 }
 
+export async function updateListingNotes(formData: FormData) {
+  const token = (await cookies()).get(AUTH_COOKIE)?.value;
+  if (token !== (await expectedToken())) {
+    redirect("/login");
+  }
+  const id = String(formData.get("id") ?? "");
+  if (!id) return;
+  const notes = String(formData.get("notes") ?? "").trim();
+  const dislikes = String(formData.get("dislikes") ?? "").trim();
+  await db
+    .update(listings)
+    .set({
+      notes: notes.length > 0 ? notes : null,
+      dislikes: dislikes.length > 0 ? dislikes : null,
+    })
+    .where(eq(listings.id, id));
+  revalidatePath("/");
+}
+
 export async function deleteCandidate(formData: FormData) {
   const token = (await cookies()).get(AUTH_COOKIE)?.value;
   if (token !== (await expectedToken())) {

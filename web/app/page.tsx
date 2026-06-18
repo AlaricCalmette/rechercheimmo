@@ -3,6 +3,7 @@ import { db } from "@/lib/db";
 import { listings, type Listing } from "@/db/schema";
 import { deleteListing, logout } from "./actions";
 import { Gallery } from "./Gallery";
+import { NotesEditor } from "./NotesEditor";
 
 export const dynamic = "force-dynamic";
 
@@ -36,8 +37,11 @@ function Card({ item }: { item: Listing }) {
           {item.rooms && <span>{item.rooms}</span>}
           {item.location && <span>{item.location}</span>}
         </div>
-        {item.notes && <div className="note">{item.notes}</div>}
-        {item.dislikes && <div className="note note-neg">{item.dislikes}</div>}
+        <NotesEditor
+          id={item.id}
+          notes={item.notes}
+          dislikes={item.dislikes}
+        />
         <div className="actions">
           <a href={item.url} target="_blank" rel="noreferrer">
             Voir l&apos;annonce →
