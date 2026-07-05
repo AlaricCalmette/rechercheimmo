@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { desc } from "drizzle-orm";
 import { db } from "@/lib/db";
-import { listings, type NewListing } from "@/db/schema";
+import { listings, type NewListing, type Kind } from "@/db/schema";
 
 export const runtime = "nodejs";
 
@@ -64,11 +64,22 @@ export async function POST(req: NextRequest) {
     return null;
   };
 
+  // Type de projet : envoyé par l'extension, sinon inféré du prix (un loyer
+  // mensuel reste très en dessous d'un prix de vente).
+  const price = toInt(body.price);
+  const kind: Kind =
+    body.kind === "achat" || body.kind === "location"
+      ? body.kind
+      : price != null && price > 0 && price <= 10000
+        ? "location"
+        : "achat";
+
   const record: NewListing = {
     source: toStr(body.source) ?? "generic",
     url,
+    kind,
     title: toStr(body.title),
-    price: toInt(body.price),
+    price,
     location: toStr(body.location),
     surface: toStr(body.surface),
     rooms: toStr(body.rooms),

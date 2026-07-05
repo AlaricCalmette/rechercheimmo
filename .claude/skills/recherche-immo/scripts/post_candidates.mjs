@@ -7,9 +7,13 @@
 //   RECHERCHEIMMO_API_SECRET (ou API_SECRET)
 //
 // Usage : node post_candidates.mjs <chemin-du-json>
-// Le JSON doit avoir la forme : { "runId"?: "...", "candidates": [ { ... } ] }
+// Le JSON doit avoir la forme :
+//   { "runId"?: "...", "kind"?: "achat"|"location", "candidates": [ { ... } ] }
 // Champs d'un candidat : source, url (requis), title, price, location, surface,
-//   rooms, photos (string[]), score (0-100), reasons (texte court).
+//   rooms, photos (string[]), score (0-100), reasons (texte court),
+//   kind ("achat"|"location" — sinon le kind du lot, sinon "achat").
+// Les URLs en liste noire (exclues depuis le site) sont rejetées à l'insertion
+// (champ `blacklisted` dans la réponse).
 
 import { readFile } from "node:fs/promises";
 

@@ -1,22 +1,24 @@
 import { desc } from "drizzle-orm";
 import { db } from "@/lib/db";
-import { candidates, type Candidate } from "@/db/schema";
-import { logout, deleteCandidate } from "../actions";
+import { candidates, type Candidate, type Kind } from "@/db/schema";
+import { deleteCandidate, excludeCandidate } from "../actions";
+import { Nav } from "../Nav";
 
 export const dynamic = "force-dynamic";
 
-function formatPrice(price: number | null): string | null {
+function formatPrice(price: number | null, kind: Kind): string | null {
   if (price == null) return null;
-  return new Intl.NumberFormat("fr-FR", {
+  const p = new Intl.NumberFormat("fr-FR", {
     style: "currency",
     currency: "EUR",
     maximumFractionDigits: 0,
   }).format(price);
+  return kind === "location" ? `${p}/mois` : p;
 }
 
 function Card({ item }: { item: Candidate }) {
   const photo = item.photos?.[0] ?? null;
-  const price = formatPrice(item.price);
+  const price = formatPrice(item.price, item.kind);
   return (
     <div className="card">
       {photo ? (
@@ -26,9 +28,11 @@ function Card({ item }: { item: Candidate }) {
         <div className="no-photo">Pas de photo</div>
       )}
       <div className="body">
-        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+        <div className="head-row">
           <span className="badge">{item.source}</span>
-          {item.score != null && <span className="score">Score {item.score}/100</span>}
+          <span className={`kind-badge kind-${item.kind}`}>{item.kind}</span>
+          <span className="spacer" />
+          {item.score != null && <span className="score">{item.score}/100</span>}
         </div>
         <a className="title" href={item.url} target="_blank" rel="noreferrer">
           {item.title ?? item.url}
@@ -44,46 +48,86 @@ function Card({ item }: { item: Candidate }) {
           <a href={item.url} target="_blank" rel="noreferrer">
             Voir l&apos;annonce →
           </a>
-          <form action={deleteCandidate}>
-            <input type="hidden" name="id" value={item.id} />
-            <button className="danger" type="submit">
-              Supprimer
-            </button>
-          </form>
+          <div className="btn-group">
+            <form action={deleteCandidate}>
+              <input type="hidden" name="id" value={item.id} />
+              <button
+                className="ghost small"
+                type="submit"
+                title="Retire de la liste (peut réapparaître à un prochain passage)"
+              >
+                Retirer
+              </button>
+            </form>
+            <form action={excludeCandidate}>
+              <input type="hidden" name="id" value={item.id} />
+              <button
+                className="danger small"
+                type="submit"
+                title="Liste noire : cette annonce ne sera plus jamais proposée"
+              >
+                Exclure
+              </button>
+            </form>
+          </div>
         </div>
       </div>
     </div>
   );
 }
 
-export default async function Candidats() {
+export default async function Candidats({
+  searchParams,
+}: {
+  searchParams: Promise<{ kind?: string }>;
+}) {
+  const { kind: kindParam } = await searchParams;
+  const kind: Kind = kindParam === "location" ? "location" : "achat";
+
   // Tous les candidats accumulés, classés par score puis par date.
-  const rows = await db
+  const all = await db
     .select()
     .from(candidates)
     .orderBy(desc(candidates.score), desc(candidates.createdAt));
+  const rows = all.filter((r) => r.kind === kind);
+  const countAchat = all.filter((r) => r.kind === "achat").length;
+  const countLocation = all.length - countAchat;
 
   return (
     <>
-      <header className="header">
+      <Nav active="candidats" />
+      <div className="page-head">
         <h1>
           Candidats trouvés
-          <span className="count">{rows.length} annonce{rows.length > 1 ? "s" : ""}</span>
+          <span className="count">
+            {rows.length} annonce{rows.length > 1 ? "s" : ""} en {kind}
+          </span>
         </h1>
-        <nav style={{ display: "flex", gap: 12, alignItems: "center" }}>
-          <a href="/">← Mes annonces</a>
-          <a href="/profil">Mon profil →</a>
-          <form action={logout}>
-            <button type="submit">Se déconnecter</button>
-          </form>
-        </nav>
-      </header>
+        <div className="tabs">
+          <a
+            className={`tab tab-achat${kind === "achat" ? " active" : ""}`}
+            href="/candidats?kind=achat"
+          >
+            Achat <span className="tab-count">{countAchat}</span>
+          </a>
+          <a
+            className={`tab tab-location${kind === "location" ? " active" : ""}`}
+            href="/candidats?kind=location"
+          >
+            Location <span className="tab-count">{countLocation}</span>
+          </a>
+        </div>
+      </div>
+      <p className="page-sub">
+        « Retirer » enlève simplement le candidat ; « Exclure » le met en liste
+        noire pour qu&apos;il ne soit plus jamais reproposé par la routine.
+      </p>
       <div className="container">
         {rows.length === 0 ? (
           <div className="empty">
-            Aucun candidat pour l&apos;instant. La routine <code>recherche-immo</code>{" "}
-            en ajoutera à chaque passage (sans doublon). Tu peux supprimer ceux qui ne
-            t&apos;intéressent pas.
+            Aucun candidat {kind} pour l&apos;instant. La routine{" "}
+            <code>recherche-immo</code> produit une liste achat et une liste
+            location à chaque passage.
           </div>
         ) : (
           <div className="grid">

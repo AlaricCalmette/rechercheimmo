@@ -140,7 +140,8 @@ label {
   font-size: 13px;
 }
 
-textarea {
+textarea,
+select {
   width: 100%;
   box-sizing: border-box;
   padding: 8px 10px;

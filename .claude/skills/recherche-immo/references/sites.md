@@ -25,7 +25,10 @@ recherche suffit souvent à juger la pertinence.
 
 ## Portails à couvrir (France)
 
-Généralistes (forte volumétrie) :
+La plupart des généralistes couvrent **vente ET location** — c'est le chemin
+d'URL qui change (`/achat` vs `/location`, « à vendre » vs « à louer »).
+
+Généralistes (forte volumétrie, achat + location) :
 - seloger.com
 - leboncoin.fr
 - bienici.com
@@ -47,6 +50,13 @@ Réseaux d'agences (souvent fetch-friendly) :
 - iadfrance.fr
 - stephaneplazaimmobilier.com
 
+Spécialisés location (pour la liste location) :
+- locservice.fr (location entre particuliers, fetch souvent lisible)
+- pap.fr/annonces (section location)
+- leboncoin.fr (catégorie locations)
+- lesiteimmo.com `…/louer/…` (agrégateur lisible, à privilégier)
+- appartager.com / lacartedescolocs.fr (si le profil pointe vers la coloc)
+
 Selon le profil (haut de gamme, rural, neuf) :
 - bellesdemeures.com, lux-residence.com (prestige)
 - green-acres.fr, proprietesrurales.com (campagne / propriétés)
@@ -58,18 +68,34 @@ Selon le profil (haut de gamme, rural, neuf) :
 ## Modèles de requêtes WebSearch
 
 Combine type de bien + localisation + budget + 1-2 préférences fortes. Lance
-plusieurs variantes par localisation pour élargir.
+plusieurs variantes par localisation pour élargir. **Fais des campagnes
+distinctes pour l'achat et pour la location** — ne mélange pas les mots-clés.
 
+Achat :
 - Général : `<type> à vendre <ville> <budget max>€ <surface>m2 <pref forte>`
   - ex. `maison à vendre Nantes 450000€ 120m2 terrasse jardin`
 - Ciblé par portail (force la source) :
   `site:seloger.com <type> <ville> <budget>`
   `site:leboncoin.fr <type> <ville> <budget>`
   `site:pap.fr <type> <ville>`
-- Préférences qualitatives explicites (le cœur de ce que l'utilisateur aime) :
-  ajoute les mots-clés récurrents des notes : `terrasse`, `exposition sud`,
-  `lumineux`, `calme`, `proche écoles`, `proche transports`, `parking`,
-  `garage`, `jardin`, `dernier étage`, `ancien charme`, `rénové`, `balcon`…
+
+Location :
+- Général : `<type> à louer <ville> <loyer max>€ <surface>m2 <pref forte>`
+  - ex. `maison à louer Bergerac 900€ 100m2 jardin`
+- Ciblé par portail :
+  `site:bienici.com/annonce/location <ville>`
+  `site:pap.fr/annonces location <ville>`
+  `site:locservice.fr <ville> <type>`
+  `site:leboncoin.fr location <type> <ville>`
+- Attention aux unités : le budget location est un **loyer mensuel** (charges
+  comprises ou non — précise « CC » / « hors charges » dans `reasons` si tu le
+  sais).
+
+Commun — préférences qualitatives explicites (le cœur de ce que l'utilisateur
+aime) : ajoute les mots-clés récurrents des notes : `terrasse`,
+`exposition sud`, `lumineux`, `calme`, `proche écoles`, `proche transports`,
+`parking`, `garage`, `jardin`, `dernier étage`, `ancien charme`, `rénové`,
+`balcon`…
 
 ## Conseils d'extraction (WebFetch)
 

@@ -3,15 +3,28 @@
 Sauvegarde des annonces immobilières (SeLoger, LeBonCoin, Bien'ici, PAP… et
 n'importe quel site) depuis une **extension Chrome**, avec une **note** sur ce
 qui te plaît, vers un **site web** qui affiche tes annonces (photos + notes).
+Une **routine Claude** (skill `recherche-immo`) en déduit **deux profils de
+goût — achat et location —** et produit à chaque passage **deux listes de
+candidats** classées, visibles sur le site.
 
 ```
 rechercheImmo/
 ├── extension/   # Extension Chrome (Manifest V3)
-└── web/         # Site + API (Next.js, déployé sur Vercel + Postgres)
+├── web/         # Site + API (Next.js, déployé sur Vercel + Postgres)
+└── .claude/skills/recherche-immo/   # Skill Claude (routine de recherche)
 ```
 
-La liste est aussi exposée en JSON (`GET /api/listings`) pour servir, plus tard,
-de base à un skill Claude.
+Pages du site :
+
+- **/** — annonces sauvegardées (onglets Tous / Achat / Location, notes
+  éditables, bascule achat↔location par carte) ;
+- **/candidats** — les candidats trouvés par la routine, onglets Achat /
+  Location, avec « Retirer » (simple) et « Exclure » (liste noire) ;
+- **/profil** — les deux profils de goût, **entièrement éditables** :
+  fourchettes, localisations, consignes libres, et traits pondérés (importance
+  1-5) avec épinglage « fixé » que la routine ne modifie jamais ;
+- **/exclusions** — la liste noire : une annonce exclue ne sera plus jamais
+  reproposée (réintégrable d'un clic).
 
 ---
 
@@ -83,8 +96,24 @@ portails — avec un repli générique qui fonctionne partout. Voir
 
 ---
 
-## 3. Plus tard : skill Claude
+## 3. Le skill Claude (`.claude/skills/recherche-immo`)
 
-Le skill consommera `GET /api/listings` (en-tête `Authorization: Bearer
-<API_SECRET>`) qui renvoie toutes les annonces en JSON (notes incluses) pour
-servir de base de recherche.
+La routine lit les annonces aimées (`GET /api/listings`, avec leur `kind`
+achat/location) et la liste noire (`GET /api/blacklist`), charge et affine les
+deux profils (`GET/PUT /api/profile?kind=achat|location`), cherche sur les
+portails, puis publie deux listes de candidats (`POST /api/candidates`, champ
+`kind` par candidat ou par lot). Toutes les requêtes portent l'en-tête
+`Authorization: Bearer <API_SECRET>`.
+
+Règles clés côté skill :
+
+- les traits marqués **« fixé »** (`pinned: true`) dans un profil sont
+  verrouillés par l'utilisateur : jamais supprimés ni repondérés ;
+- le champ **consignes libres** (`instructions`) du profil est appliqué tel
+  quel ;
+- les URLs de la **liste noire** ne sont jamais reproposées (l'API les rejette
+  aussi à l'insertion).
+
+> **Migration** : après mise à jour du code, lancer `npm run db:push` dans
+> `web/` pour créer la table `blacklist` et les colonnes `kind`
+> (les données existantes sont classées « achat » par défaut).

@@ -27,10 +27,20 @@ async function getConfig() {
   return { apiUrl, secret };
 }
 
+// Devine le type de projet : URL/titre parlant de location, ou prix au niveau
+// d'un loyer mensuel. L'utilisateur peut corriger via le sélecteur.
+function guessKind(data) {
+  const text = `${data.url || ""} ${data.title || ""}`.toLowerCase();
+  if (/louer|location|\bloyer\b|\/locations?\//.test(text)) return "location";
+  if (data.price != null && data.price > 0 && data.price <= 10000) return "location";
+  return "achat";
+}
+
 function renderPreview(data) {
   $("source").textContent = data.source || "generic";
   $("title").textContent = data.title || data.url || "(sans titre)";
   $("price").textContent = formatPrice(data.price);
+  $("kind").value = guessKind(data);
 
   // Par défaut aucune photo cochée : l'utilisateur choisit explicitement.
   selected = [];
@@ -153,6 +163,7 @@ async function save() {
         photos: ordered,
         notes: $("notes").value.trim(),
         dislikes: $("dislikes").value.trim(),
+        kind: $("kind").value,
       }),
     });
     if (!res.ok) {
