@@ -25,6 +25,9 @@ export const listings = pgTable("listings", {
   notes: text("notes"),
   dislikes: text("dislikes"),
   kind: text("kind").$type<Kind>().notNull().default("achat"),
+  // Date d'envoi d'une demande de visite / de contact à l'annonceur. `null` =
+  // aucune demande envoyée. Alimente l'onglet « Demande envoyée » du site.
+  requestedAt: timestamp("requested_at", { withTimezone: true }),
   raw: jsonb("raw"),
   createdAt: timestamp("created_at", { withTimezone: true })
     .defaultNow()

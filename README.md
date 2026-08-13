@@ -16,8 +16,10 @@ rechercheImmo/
 
 Pages du site :
 
-- **/** — annonces sauvegardées (onglets Tous / Achat / Location, notes
-  éditables, bascule achat↔location par carte) ;
+- **/** — annonces sauvegardées (onglets Toutes / Achat / Location / Demande
+  envoyée, notes éditables, bascule achat↔location par carte, bouton
+  « Demande envoyée » pour marquer une annonce contactée — elle rejoint
+  l'onglet du même nom et affiche la date d'envoi) ;
 - **/candidats** — les candidats trouvés par la routine, onglets Achat /
   Location, avec « Retirer » (simple) et « Exclure » (liste noire) ;
 - **/profil** — les deux profils de goût, **entièrement éditables** :
@@ -115,5 +117,6 @@ Règles clés côté skill :
   aussi à l'insertion).
 
 > **Migration** : après mise à jour du code, lancer `npm run db:push` dans
-> `web/` pour créer la table `blacklist` et les colonnes `kind`
-> (les données existantes sont classées « achat » par défaut).
+> `web/` pour créer la table `blacklist`, les colonnes `kind`
+> (les données existantes sont classées « achat » par défaut) et la colonne
+> `listings.requested_at` (date d'envoi de la demande, `NULL` par défaut).

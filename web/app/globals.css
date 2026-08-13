@@ -14,6 +14,8 @@
   --green-soft: #12291f;
   --red: #ff7a7a;
   --red-soft: #2a1c1e;
+  --amber: #f0b429;
+  --amber-soft: #2d2311;
   --radius: 14px;
   --shadow: 0 1px 2px rgba(0, 0, 0, 0.4), 0 8px 24px rgba(0, 0, 0, 0.25);
 }
@@ -181,6 +183,10 @@ a:hover {
 
 .tab.active.tab-location {
   color: var(--green);
+}
+
+.tab.active.tab-envoi {
+  color: var(--amber);
 }
 
 .tab .tab-count {
@@ -456,6 +462,32 @@ a:hover {
   border: 1px solid rgba(52, 201, 142, 0.45);
 }
 
+/* Pastille « demande envoyée » (date d'envoi) */
+.request-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.03em;
+  color: var(--amber);
+  background: var(--amber-soft);
+  border: 1px solid rgba(240, 180, 41, 0.45);
+  border-radius: 999px;
+  padding: 2px 9px;
+}
+
+/* Bouton « Demande envoyée » actif sur une carte */
+button.on-request {
+  color: var(--amber);
+  border-color: rgba(240, 180, 41, 0.45);
+  background: var(--amber-soft);
+}
+
+button.on-request:hover {
+  border-color: var(--amber);
+}
+
 /* Mini-bascule achat/location sur les cartes d'annonces */
 .kind-switch {
   display: inline-flex;
@@ -489,6 +521,7 @@ a:hover {
   display: flex;
   justify-content: space-between;
   align-items: center;
+  flex-wrap: wrap;
   gap: 8px;
   margin-top: auto;
   padding-top: 8px;
@@ -497,6 +530,7 @@ a:hover {
 
 .card .actions .btn-group {
   display: flex;
+  flex-wrap: wrap;
   gap: 6px;
 }
 

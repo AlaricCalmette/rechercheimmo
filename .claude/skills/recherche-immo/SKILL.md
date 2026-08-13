@@ -67,10 +67,13 @@ node scripts/fetch_blacklist.mjs
 
 `fetch_listings.mjs` imprime en JSON toutes les annonces sauvegardées. Chaque
 annonce contient : `source, url, title, price, location, surface, rooms,
-description, notes, dislikes, kind, raw, createdAt`. Le champ `notes` dit **ce
-qui plaît** à l'utilisateur, `dislikes` **ce qui lui déplaît**, et **`kind`
-(`achat` | `location`) dit à quel projet l'annonce appartient** — sépare la
-collection en deux dès maintenant. Si la liste est vide, arrête-toi et signale
+description, notes, dislikes, kind, requestedAt, raw, createdAt`. Le champ
+`notes` dit **ce qui plaît** à l'utilisateur, `dislikes` **ce qui lui
+déplaît**, et **`kind` (`achat` | `location`) dit à quel projet l'annonce
+appartient** — sépare la collection en deux dès maintenant. `requestedAt` non
+nul = l'utilisateur a **envoyé une demande** sur cette annonce : c'est le
+signal d'intérêt le plus fort, pèse ces annonces davantage que les autres dans
+l'affinage du profil. Si la liste est vide, arrête-toi et signale
 qu'il faut d'abord sauvegarder des annonces depuis l'extension.
 
 `fetch_blacklist.mjs` imprime `{ count, urls, entries }` : les **annonces

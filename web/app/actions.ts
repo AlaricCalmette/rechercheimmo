@@ -78,6 +78,21 @@ export async function setListingKind(formData: FormData) {
   revalidatePath("/");
 }
 
+// Marque (ou démarque) une annonce comme « demande envoyée » : elle apparaît
+// alors dans l'onglet dédié de la page d'accueil. On stocke la date d'envoi
+// plutôt qu'un simple booléen pour pouvoir l'afficher sur la carte.
+export async function setListingRequested(formData: FormData) {
+  await requireAuth();
+  const id = String(formData.get("id") ?? "");
+  if (!id) return;
+  const requested = String(formData.get("requested") ?? "") === "1";
+  await db
+    .update(listings)
+    .set({ requestedAt: requested ? new Date() : null })
+    .where(eq(listings.id, id));
+  revalidatePath("/");
+}
+
 export async function deleteCandidate(formData: FormData) {
   await requireAuth();
   const id = String(formData.get("id") ?? "");
