@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import "./globals.css";
+import { CompareProvider } from "./CompareKit";
 
 export const metadata: Metadata = {
   title: "RechercheImmo",
@@ -14,7 +15,9 @@ export default function RootLayout({
 }) {
   return (
     <html lang="fr">
-      <body>{children}</body>
+      <body>
+        <CompareProvider>{children}</CompareProvider>
+      </body>
     </html>
   );
 }

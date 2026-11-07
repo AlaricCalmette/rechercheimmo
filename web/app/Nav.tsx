@@ -4,7 +4,14 @@ import { logout } from "./actions";
 export function Nav({
   active,
 }: {
-  active: "annonces" | "candidats" | "profil" | "exclusions";
+  active:
+    | "annonces"
+    | "candidats"
+    | "carte"
+    | "historique"
+    | "profil"
+    | "exclusions"
+    | "comparer";
 }) {
   const link = (href: string, key: typeof active, label: string) => (
     <a className={`nav-link${active === key ? " active" : ""}`} href={href}>
@@ -19,6 +26,8 @@ export function Nav({
       <nav>
         {link("/", "annonces", "Mes annonces")}
         {link("/candidats", "candidats", "Candidats")}
+        {link("/carte", "carte", "Carte")}
+        {link("/historique", "historique", "Historique")}
         {link("/profil", "profil", "Profils")}
         {link("/exclusions", "exclusions", "Exclusions")}
       </nav>

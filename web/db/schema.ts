@@ -5,11 +5,25 @@ import {
   integer,
   jsonb,
   timestamp,
+  boolean,
+  doublePrecision,
 } from "drizzle-orm/pg-core";
 
 // Type de projet immobilier : achat ou location. Les annonces aimées, les
 // candidats et les profils sont séparés selon cet axe.
 export type Kind = "achat" | "location";
+
+// Statut de suivi d'une annonce sauvegardée (pipeline de recherche).
+export type ListingStatus =
+  | "a_contacter"
+  | "contactee"
+  | "visite_prevue"
+  | "visitee"
+  | "ecartee";
+
+// Un point d'historique de prix : le prix que portait l'annonce AVANT le
+// changement détecté à cette date (voir /api/listings/check).
+export type PricePoint = { date: string; price: number };
 
 export const listings = pgTable("listings", {
   id: uuid("id").defaultRandom().primaryKey(),
@@ -25,6 +39,13 @@ export const listings = pgTable("listings", {
   notes: text("notes"),
   dislikes: text("dislikes"),
   kind: text("kind").$type<Kind>().notNull().default("achat"),
+  // Suivi de la recherche : null = pas encore de statut.
+  status: text("status").$type<ListingStatus>(),
+  // Veille : anciens prix détectés par la routine, date du dernier contrôle,
+  // et drapeau « annonce disparue » (vendue/retirée du portail).
+  priceHistory: jsonb("price_history").$type<PricePoint[]>(),
+  lastCheckedAt: timestamp("last_checked_at", { withTimezone: true }),
+  gone: boolean("gone").default(false),
   raw: jsonb("raw"),
   createdAt: timestamp("created_at", { withTimezone: true })
     .defaultNow()
@@ -51,14 +72,46 @@ export const candidates = pgTable("candidates", {
   photos: jsonb("photos").$type<string[]>().default([]),
   score: integer("score"),
   reasons: text("reasons"),
+  // Détail du score par trait : points positifs ou négatifs attribués par la
+  // routine (ex. { label: "pierre apparente", points: 12 }).
+  scoreDetails: jsonb("score_details").$type<ScorePoint[]>(),
   kind: text("kind").$type<Kind>().notNull().default("achat"),
   createdAt: timestamp("created_at", { withTimezone: true })
     .defaultNow()
     .notNull(),
 });
 
+export type ScorePoint = { label: string; points: number };
+
 export type Candidate = typeof candidates.$inferSelect;
 export type NewCandidate = typeof candidates.$inferInsert;
+
+// Un passage de la routine : statistiques d'insertion renvoyées par
+// POST /api/candidates. Si un même runId envoie plusieurs lots (achat puis
+// location), les compteurs s'additionnent.
+export const runs = pgTable("runs", {
+  id: uuid("id").primaryKey(),
+  received: integer("received").notNull().default(0),
+  inserted: integer("inserted").notNull().default(0),
+  skipped: integer("skipped").notNull().default(0),
+  blacklisted: integer("blacklisted").notNull().default(0),
+  createdAt: timestamp("created_at", { withTimezone: true })
+    .defaultNow()
+    .notNull(),
+});
+
+export type Run = typeof runs.$inferSelect;
+
+// Cache de géocodage (carte) : une ligne par texte de localisation rencontré.
+// lat/lng null = géocodage tenté mais sans résultat (on ne réessaie pas).
+export const geocache = pgTable("geocache", {
+  location: text("location").primaryKey(),
+  lat: doublePrecision("lat"),
+  lng: doublePrecision("lng"),
+  createdAt: timestamp("created_at", { withTimezone: true })
+    .defaultNow()
+    .notNull(),
+});
 
 // Annonces exclues définitivement : leur URL ne doit plus jamais réapparaître
 // dans les candidats. Alimentée par le bouton « Exclure » du site ; consultée
@@ -93,6 +146,13 @@ export type ProfileData = {
   propertyTypes?: string[];
   surface?: { min: number | null; max: number | null };
   rooms?: { min: number | null; max: number | null };
+  // Plan de financement (profil achat) : sert à estimer une mensualité sur
+  // chaque carte. taux = taux annuel en %, duree en années.
+  financing?: {
+    apport: number | null;
+    taux: number | null;
+    duree: number | null;
+  };
   instructions?: string;
   preferences?: {
     theme: string;

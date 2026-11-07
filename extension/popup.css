@@ -171,6 +171,40 @@ button.primary {
   color: white;
 }
 
+button.danger {
+  margin-top: 8px;
+  color: var(--err);
+  border-color: #3a2730;
+  font-size: 13px;
+  padding: 7px 14px;
+}
+
+button.danger:hover {
+  background: #2a1c1e;
+}
+
+.known {
+  font-size: 13px;
+  border-radius: 8px;
+  padding: 7px 10px;
+  margin-bottom: 10px;
+  border: 1px solid var(--border);
+}
+
+.known.favori {
+  border-color: #e8487a;
+  color: #ff8fb1;
+}
+
+.known.candidat {
+  border-color: var(--accent);
+  color: #7dabff;
+}
+
+.known.exclu {
+  color: var(--muted);
+}
+
 button:disabled {
   opacity: 0.6;
   cursor: default;

@@ -181,6 +181,78 @@ async function save() {
   }
 }
 
+// Même normalisation que content.js : hôte sans www + chemin sans slash final.
+function normUrl(href) {
+  try {
+    const u = new URL(href);
+    return (
+      u.hostname.replace(/^www\./, "").toLowerCase() +
+      u.pathname.replace(/\/+$/, "").toLowerCase()
+    );
+  } catch {
+    return null;
+  }
+}
+
+// Indique si l'annonce courante est déjà connue (favori, candidat, exclue).
+async function showKnownState() {
+  const { apiUrl, secret } = await getConfig();
+  try {
+    const res = await fetch(`${apiUrl.replace(/\/$/, "")}/api/known`, {
+      headers: { Authorization: `Bearer ${secret}` },
+    });
+    if (!res.ok) return;
+    const data = await res.json();
+    const k = normUrl(current.url);
+    const box = $("known");
+    if ((data.exclus || []).some((u) => normUrl(u) === k)) {
+      box.textContent = "⛔ Cette annonce est déjà exclue.";
+      box.className = "known exclu";
+      $("exclude").classList.add("hidden");
+    } else if ((data.favoris || []).some((u) => normUrl(u) === k)) {
+      box.textContent = "♥ Déjà dans tes favoris.";
+      box.className = "known favori";
+    } else {
+      const c = (data.candidats || []).find((x) => normUrl(x.url) === k);
+      if (!c) return;
+      box.textContent = `★ Déjà proposée par la routine${c.score != null ? ` (${c.score}/100)` : ""}.`;
+      box.className = "known candidat";
+    }
+  } catch {
+    /* site injoignable : pas d'indication */
+  }
+}
+
+async function exclude() {
+  const { apiUrl, secret } = await getConfig();
+  const status = $("status");
+  status.className = "status";
+  if (!current) return;
+  const btn = $("exclude");
+  btn.disabled = true;
+  try {
+    const res = await fetch(`${apiUrl.replace(/\/$/, "")}/api/blacklist`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json", Authorization: `Bearer ${secret}` },
+      body: JSON.stringify({
+        url: current.url,
+        title: current.title,
+        source: current.source,
+        reason: "exclue depuis l'extension",
+      }),
+    });
+    if (!res.ok) throw new Error(`${res.status}`);
+    await chrome.storage.local.remove("rechercheimmo-known");
+    status.textContent = "Annonce exclue ✓ — elle ne sera plus proposée.";
+    status.classList.add("ok");
+    btn.textContent = "Exclue ✓";
+  } catch (e) {
+    status.textContent = `Échec : ${e.message}`;
+    status.classList.add("err");
+    btn.disabled = false;
+  }
+}
+
 async function init() {
   const { apiUrl, secret } = await getConfig();
   if (!apiUrl || !secret) {
@@ -193,6 +265,7 @@ async function init() {
 
   show($("main"));
   $("save").addEventListener("click", save);
+  $("exclude").addEventListener("click", exclude);
   $("open-options-2").addEventListener("click", (e) => {
     e.preventDefault();
     chrome.runtime.openOptionsPage();
@@ -201,6 +274,7 @@ async function init() {
   try {
     current = await extractFromActiveTab();
     renderPreview(current);
+    showKnownState();
   } catch (e) {
     const status = $("status");
     status.textContent = `Lecture de la page impossible : ${e.message}`;

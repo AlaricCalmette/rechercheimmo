@@ -11,6 +11,7 @@
 //   { "runId"?: "...", "kind"?: "achat"|"location", "candidates": [ { ... } ] }
 // Champs d'un candidat : source, url (requis), title, price, location, surface,
 //   rooms, photos (string[]), score (0-100), reasons (texte court),
+//   scoreDetails ([{ label, points }] — détail du score, points négatifs = malus),
 //   kind ("achat"|"location" — sinon le kind du lot, sinon "achat").
 // Les URLs en liste noire (exclues depuis le site) sont rejetées à l'insertion
 // (champ `blacklisted` dans la réponse).

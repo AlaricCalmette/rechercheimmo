@@ -12,8 +12,11 @@ import {
   profile,
   type ProfileData,
   type Kind,
+  type ListingStatus,
 } from "@/db/schema";
 import { AUTH_COOKIE, expectedToken } from "@/lib/auth";
+import { geocodeMissing } from "@/lib/geocode";
+import { applyCheck, checkUrl } from "@/lib/watch";
 
 async function requireAuth() {
   const token = (await cookies()).get(AUTH_COOKIE)?.value;
@@ -76,6 +79,96 @@ export async function setListingKind(formData: FormData) {
   if (!id || (kind !== "achat" && kind !== "location")) return;
   await db.update(listings).set({ kind: kind as Kind }).where(eq(listings.id, id));
   revalidatePath("/");
+}
+
+// Statut de suivi d'une annonce sauvegardée (à contacter, visitée…).
+export async function setListingStatus(formData: FormData) {
+  await requireAuth();
+  const id = String(formData.get("id") ?? "");
+  const raw = String(formData.get("status") ?? "");
+  const allowed: ListingStatus[] = [
+    "a_contacter",
+    "contactee",
+    "visite_prevue",
+    "visitee",
+    "ecartee",
+  ];
+  if (!id) return;
+  const status = (allowed as string[]).includes(raw)
+    ? (raw as ListingStatus)
+    : null;
+  await db.update(listings).set({ status }).where(eq(listings.id, id));
+  revalidatePath("/");
+}
+
+// Boucle de feedback positive : un candidat aimé devient une annonce
+// sauvegardée (favori), que la routine analysera pour affiner le profil.
+export async function likeCandidate(formData: FormData) {
+  await requireAuth();
+  const id = String(formData.get("id") ?? "");
+  if (!id) return;
+  const [row] = await db.select().from(candidates).where(eq(candidates.id, id));
+  if (!row) return;
+  await db.insert(listings).values({
+    source: row.source,
+    url: row.url,
+    title: row.title,
+    price: row.price,
+    location: row.location,
+    surface: row.surface,
+    rooms: row.rooms,
+    photos: row.photos ?? [],
+    kind: row.kind,
+    raw: { fromCandidate: { runId: row.runId, score: row.score, reasons: row.reasons } },
+  });
+  await db.delete(candidates).where(eq(candidates.id, id));
+  revalidatePath("/");
+  revalidatePath("/candidats");
+  revalidatePath("/carte");
+}
+
+// Géocode une partie des localisations manquantes pour la carte (bouton sur
+// /carte ; Nominatim impose ~1 requête/s, d'où le lot limité).
+export async function geocodeMoreAction() {
+  await requireAuth();
+  const [ls, cs] = await Promise.all([
+    db.select({ location: listings.location }).from(listings),
+    db.select({ location: candidates.location }).from(candidates),
+  ]);
+  const locations = [...ls, ...cs]
+    .map((r) => r.location)
+    .filter((l): l is string => !!l);
+  await geocodeMissing(locations, 10);
+  revalidatePath("/carte");
+}
+
+// Veille rapide depuis le site : contrôle en parallèle (timeout 7 s chacune)
+// les annonces encore en ligne. Les portails qui bloquent les requêtes
+// automatiques restent inchangés (la routine prend le relais avec de
+// meilleurs outils). Renvoie un petit bilan pour l'affichage.
+export async function runWatchAction(): Promise<{
+  checked: number;
+  blocked: number;
+  priceChanges: number;
+  gone: number;
+}> {
+  await requireAuth();
+  const all = await db.select().from(listings);
+  const batch = all.filter((r) => !r.gone).slice(0, 40);
+  const results = await Promise.all(
+    batch.map(async (row) => {
+      const res = await checkUrl(row.url);
+      const applied = await applyCheck(row, res);
+      return { res, applied };
+    })
+  );
+  revalidatePath("/");
+  return {
+    checked: results.filter((r) => r.res.state !== "unknown").length,
+    blocked: results.filter((r) => r.res.state === "unknown").length,
+    priceChanges: results.filter((r) => r.applied.priceChanged).length,
+    gone: results.filter((r) => r.res.state === "gone").length,
+  };
 }
 
 export async function deleteCandidate(formData: FormData) {
@@ -192,12 +285,30 @@ export async function saveProfile(formData: FormData) {
 
   const instructions = String(formData.get("instructions") ?? "").trim();
 
+  // Taux d'intérêt : accepte les décimales ("3,4" ou "3.4").
+  const dec = (name: string): number | null => {
+    const raw = String(formData.get(name) ?? "")
+      .replace(",", ".")
+      .replace(/[^\d.]/g, "");
+    if (!raw) return null;
+    const n = parseFloat(raw);
+    return Number.isFinite(n) ? n : null;
+  };
+
   const data: ProfileData = {
     ...existing,
     updatedAt: new Date().toISOString(),
     budget: { min: num("budgetMin"), max: num("budgetMax") },
     surface: { min: num("surfaceMin"), max: num("surfaceMax") },
     rooms: { min: num("roomsMin"), max: num("roomsMax") },
+    financing:
+      kind === "achat"
+        ? {
+            apport: num("finApport"),
+            taux: dec("finTaux"),
+            duree: num("finDuree"),
+          }
+        : existing.financing,
     locations: list("locations"),
     propertyTypes: list("propertyTypes"),
     instructions: instructions.length > 0 ? instructions : undefined,

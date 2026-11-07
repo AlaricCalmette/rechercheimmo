@@ -174,6 +174,46 @@ export function ProfileEditor({
             defaultValue={(initial?.propertyTypes ?? []).join(", ")}
           />
         </div>
+        {kind === "achat" && (
+          <div className="profile-field" style={{ gridColumn: "1 / -1" }}>
+            <span className="profile-label">
+              Plan de financement — sert à estimer la mensualité sur chaque carte
+            </span>
+            <div className="range-inputs financing-inputs">
+              <label>
+                Apport (€)
+                <input
+                  name="finApport"
+                  inputMode="numeric"
+                  placeholder="50000"
+                  defaultValue={initial?.financing?.apport ?? ""}
+                />
+              </label>
+              <label>
+                Taux annuel (%)
+                <input
+                  name="finTaux"
+                  inputMode="decimal"
+                  placeholder="3,4"
+                  defaultValue={
+                    initial?.financing?.taux != null
+                      ? String(initial.financing.taux).replace(".", ",")
+                      : ""
+                  }
+                />
+              </label>
+              <label>
+                Durée (ans)
+                <input
+                  name="finDuree"
+                  inputMode="numeric"
+                  placeholder="20"
+                  defaultValue={initial?.financing?.duree ?? ""}
+                />
+              </label>
+            </div>
+          </div>
+        )}
         <div className="profile-field" style={{ gridColumn: "1 / -1" }}>
           <span className="profile-label">Localisations (une par ligne ou séparées par des virgules)</span>
           <textarea

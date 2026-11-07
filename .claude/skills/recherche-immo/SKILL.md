@@ -301,6 +301,19 @@ les préférences précises** qui matchent — et, le cas échéant, **signale l
 défauts évités**. Si un candidat présente un défaut mineur connu, mentionne-le
 honnêtement. Garde le **top 15-25 par liste**.
 
+Joins aussi le **détail du score** dans `scoreDetails` : une entrée par
+composante, `{ "label": "<trait ou critère>", "points": <n> }`, points
+négatifs pour les malus. Utilise le libellé exact du trait du profil
+(ex. `"pierre apparente"`) pour que l'utilisateur relie chaque ligne à sa page
+`/profil`. Le site affiche ce détail sous chaque candidat (« Pourquoi ce
+score ? ») et dans le comparateur. La somme des points doit retomber à peu près
+sur le `score`.
+
+Un candidat que l'utilisateur a « aimé » sur le site (bouton ♥) est transféré
+dans ses annonces sauvegardées : il réapparaît donc à l'Étape 0 comme une
+annonce aimée, à analyser comme les autres (son champ `raw.fromCandidate`
+garde le score et les raisons d'origine).
+
 ### Étape 4 — Livrer (les sorties, en double)
 
 Génère **un seul `runId`** (UUID) pour toute l'exécution — il est partagé par
@@ -336,6 +349,31 @@ deux lots avec un `kind` de lot. **Réutilise le même `runId` dans les deux
 appels.** Les candidats apparaissent sur la page `/candidats` du site, onglets
 Achat / Location. La réponse indique `blacklisted` : le nombre de candidats
 rejetés car exclus — si tu as bien filtré à l'Étape 2/3, il doit être 0.
+Chaque passage est enregistré dans l'historique du site (`/historique`).
+
+**d) Veille des annonces sauvegardées** : revisite chaque annonce aimée
+récupérée à l'Étape 0 (avec tes outils de navigation habituels, qui passent
+mieux les protections anti-bot qu'un simple fetch) et note :
+- `"state": "gone"` si l'annonce n'existe plus (404, « annonce expirée /
+  supprimée », bien vendu ou loué, redirection vers une page de résultats) ;
+- `"state": "ok"` et le **prix actuel** sinon.
+
+Envoie le tout en un seul appel (ignore les annonces que tu n'as pas pu lire,
+plutôt que de deviner) :
+
+```bash
+node scripts/post_checks.mjs <chemin-du-json>
+```
+
+```json
+{ "checks": [ { "id": "<id de l'annonce>", "state": "ok", "price": 245000 },
+              { "url": "https://...", "state": "gone" } ] }
+```
+
+Le site garde l'historique des prix et affiche les baisses (↓ x %) et les
+annonces disparues sur `/`. Mentionne les baisses de prix et les disparitions
+dans le rapport Markdown (section « Veille »). Une annonce disparue reste
+une bonne source d'apprentissage pour le profil : continue de l'analyser.
 
 ## Modèle de rapport Markdown
 
@@ -368,6 +406,11 @@ rejetés car exclus — si tu as bien filtré à l'Étape 2/3, il doit être 0.
 ### Top annonces
 …
 
+## 🔎 Veille des annonces sauvegardées
+- ↓ <titre> : <ancien prix> → <nouveau prix> (−x %)
+- ⛔ <titre> : annonce disparue
+(ou « aucun changement »)
+
 ## Sources interrogées
 <liste des portails effectivement requêtés, par liste>
 
@@ -393,7 +436,15 @@ par la liste noire…>
       "rooms": "5 pièces, 3 chambres",
       "photos": ["https://..."],
       "score": 87,
-      "reasons": "Pierre apparente et jardin arboré, tes deux préférences essentielles ; aucun défaut rédhibitoire."
+      "reasons": "Pierre apparente et jardin arboré, tes deux préférences essentielles ; aucun défaut rédhibitoire.",
+      "scoreDetails": [
+        { "label": "pierre apparente", "points": 24 },
+        { "label": "jardin arboré", "points": 20 },
+        { "label": "surface / pièces", "points": 18 },
+        { "label": "budget", "points": 14 },
+        { "label": "localisation", "points": 15 },
+        { "label": "route passante", "points": -4 }
+      ]
     }
   ]
 }

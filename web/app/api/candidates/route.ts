@@ -1,7 +1,15 @@
 import { NextRequest, NextResponse } from "next/server";
-import { desc, eq, inArray } from "drizzle-orm";
+import { desc, eq, inArray, sql } from "drizzle-orm";
 import { db } from "@/lib/db";
-import { candidates, blacklist, type NewCandidate, type Kind } from "@/db/schema";
+import {
+  candidates,
+  blacklist,
+  listings,
+  runs,
+  type NewCandidate,
+  type Kind,
+  type ScorePoint,
+} from "@/db/schema";
 
 export const runtime = "nodejs";
 
@@ -23,6 +31,22 @@ function authorized(req: NextRequest): boolean {
 
 function toKind(v: unknown): Kind | null {
   return v === "achat" || v === "location" ? v : null;
+}
+
+// Détail du score : [{ label, points }] ; points négatifs = pénalités.
+function toScoreDetails(v: unknown): ScorePoint[] | null {
+  if (!Array.isArray(v)) return null;
+  const out = v
+    .filter(
+      (p) =>
+        p &&
+        typeof p.label === "string" &&
+        p.label.trim().length > 0 &&
+        typeof p.points === "number" &&
+        Number.isFinite(p.points)
+    )
+    .map((p) => ({ label: String(p.label).trim(), points: Math.round(p.points) }));
+  return out.length > 0 ? out : null;
 }
 
 export async function OPTIONS() {
@@ -95,6 +119,7 @@ export async function POST(req: NextRequest) {
         : [],
       score: toInt(c.score),
       reasons: toStr(c.reasons),
+      scoreDetails: toScoreDetails(c.scoreDetails),
       kind: toKind(c.kind) ?? batchKind ?? "achat",
     }));
 
@@ -115,11 +140,18 @@ export async function POST(req: NextRequest) {
   // Déduplication : on n'ajoute que les annonces dont l'URL n'est pas déjà
   // présente. La routine ne fait donc qu'ajouter des candidats (jamais de
   // doublon, jamais de remplacement) ; la suppression est manuelle côté site.
-  const existing = await db
-    .select({ url: candidates.url })
-    .from(candidates)
-    .where(inArray(candidates.url, urls));
-  const seen = new Set(existing.map((e) => e.url));
+  // Une annonce déjà en favori n'a pas non plus à revenir en candidat.
+  const [existing, liked] = await Promise.all([
+    db
+      .select({ url: candidates.url })
+      .from(candidates)
+      .where(inArray(candidates.url, urls)),
+    db
+      .select({ url: listings.url })
+      .from(listings)
+      .where(inArray(listings.url, urls)),
+  ]);
+  const seen = new Set([...existing, ...liked].map((e) => e.url));
 
   // dédoublonne aussi à l'intérieur du lot reçu
   const newRows: NewCandidate[] = [];
@@ -138,13 +170,31 @@ export async function POST(req: NextRequest) {
   if (newRows.length > 0) {
     await db.insert(candidates).values(newRows);
   }
-  return NextResponse.json(
-    {
-      runId,
+  const skipped = rows.length - newRows.length - blacklisted;
+
+  // Historique des passages : un même runId peut envoyer plusieurs lots
+  // (achat puis location) — les compteurs s'additionnent.
+  await db
+    .insert(runs)
+    .values({
+      id: runId,
+      received: rows.length,
       inserted: newRows.length,
-      skipped: rows.length - newRows.length - blacklisted,
+      skipped,
       blacklisted,
-    },
+    })
+    .onConflictDoUpdate({
+      target: runs.id,
+      set: {
+        received: sql`${runs.received} + ${rows.length}`,
+        inserted: sql`${runs.inserted} + ${newRows.length}`,
+        skipped: sql`${runs.skipped} + ${skipped}`,
+        blacklisted: sql`${runs.blacklisted} + ${blacklisted}`,
+      },
+    });
+
+  return NextResponse.json(
+    { runId, inserted: newRows.length, skipped, blacklisted },
     { status: 201, headers: CORS }
   );
 }

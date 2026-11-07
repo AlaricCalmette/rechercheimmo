@@ -1,8 +1,8 @@
 {
   "manifest_version": 3,
   "name": "RechercheImmo — Sauvegarde d'annonces",
-  "version": "1.0.0",
-  "description": "Sauvegarde une annonce immobilière (photos + infos) avec une note expliquant ce qui te plaît, vers ton site RechercheImmo.",
+  "version": "1.1.0",
+  "description": "Sauvegarde une annonce immobilière (photos + infos) avec une note expliquant ce qui te plaît, vers ton site RechercheImmo. Surligne les annonces déjà connues sur les portails.",
   "permissions": ["activeTab", "scripting", "storage"],
   "host_permissions": ["http://*/*", "https://*/*"],
   "action": {
@@ -12,5 +12,43 @@
   "options_ui": {
     "page": "options.html",
     "open_in_tab": true
-  }
+  },
+  "content_scripts": [
+    {
+      "matches": [
+        "https://*.seloger.com/*",
+        "https://*.leboncoin.fr/*",
+        "https://*.bienici.com/*",
+        "https://*.pap.fr/*",
+        "https://*.logic-immo.com/*",
+        "https://*.lesiteimmo.com/*",
+        "https://*.figaroimmo.fr/*",
+        "https://immobilier.lefigaro.fr/*",
+        "https://*.green-acres.fr/*",
+        "https://*.green-acres.com/*",
+        "https://*.paruvendu.fr/*",
+        "https://*.ouestfrance-immo.com/*",
+        "https://*.superimmo.com/*",
+        "https://*.avendrealouer.fr/*",
+        "https://*.meilleursagents.com/*",
+        "https://*.proprietes-privees.com/*",
+        "https://*.iadfrance.fr/*",
+        "https://*.safti.fr/*",
+        "https://*.capifrance.fr/*",
+        "https://*.century21.fr/*",
+        "https://*.orpi.com/*",
+        "https://*.laforet.com/*",
+        "https://*.guy-hoquet.com/*",
+        "https://*.stephaneplazaimmobilier.com/*",
+        "https://*.era-immobilier.fr/*",
+        "https://*.idealista.com/*",
+        "https://*.immoweb.be/*",
+        "https://*.rightmove.co.uk/*",
+        "https://*.zillow.com/*"
+      ],
+      "js": ["content.js"],
+      "css": ["content.css"],
+      "run_at": "document_idle"
+    }
+  ]
 }

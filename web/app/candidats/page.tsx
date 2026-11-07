@@ -1,53 +1,65 @@
 import { desc } from "drizzle-orm";
 import { db } from "@/lib/db";
-import { candidates, type Candidate, type Kind } from "@/db/schema";
-import { deleteCandidate, excludeCandidate } from "../actions";
+import { candidates, runs, type Candidate, type Kind, type ProfileData } from "@/db/schema";
+import { deleteCandidate, excludeCandidate, likeCandidate } from "../actions";
 import { Nav } from "../Nav";
+import { Gallery } from "../Gallery";
+import { ConfirmForm } from "../ConfirmForm";
+import { FilterBar } from "../FilterBar";
+import { CompareToggle } from "../CompareKit";
+import { PriceMeta, ScoreDetails } from "../CardBits";
+import { readFilters, filterRows, sortRows } from "@/lib/filters";
+import { loadProfile } from "@/lib/profiles";
 
 export const dynamic = "force-dynamic";
 
-function formatPrice(price: number | null, kind: Kind): string | null {
-  if (price == null) return null;
-  const p = new Intl.NumberFormat("fr-FR", {
-    style: "currency",
-    currency: "EUR",
-    maximumFractionDigits: 0,
-  }).format(price);
-  return kind === "location" ? `${p}/mois` : p;
-}
-
-function Card({ item }: { item: Candidate }) {
-  const photo = item.photos?.[0] ?? null;
-  const price = formatPrice(item.price, item.kind);
+function Card({
+  item,
+  isNew,
+  financing,
+}: {
+  item: Candidate;
+  isNew: boolean;
+  financing?: ProfileData["financing"];
+}) {
   return (
-    <div className="card">
-      {photo ? (
-        // eslint-disable-next-line @next/next/no-img-element
-        <img className="photo" src={photo} alt={item.title ?? ""} loading="lazy" />
-      ) : (
-        <div className="no-photo">Pas de photo</div>
-      )}
+    <div className={`card${isNew ? " card-new" : ""}`}>
+      <Gallery photos={item.photos ?? []} alt={item.title ?? ""} />
       <div className="body">
         <div className="head-row">
           <span className="badge">{item.source}</span>
-          <span className={`kind-badge kind-${item.kind}`}>{item.kind}</span>
+          {isNew && <span className="new-badge">Nouveau</span>}
           <span className="spacer" />
           {item.score != null && <span className="score">{item.score}/100</span>}
+          <CompareToggle compareKey={`c:${item.id}`} />
         </div>
         <a className="title" href={item.url} target="_blank" rel="noreferrer">
           {item.title ?? item.url}
         </a>
-        <div className="meta">
-          {price && <span className="price">{price}</span>}
-          {item.surface && <span>{item.surface}</span>}
-          {item.rooms && <span>{item.rooms}</span>}
-          {item.location && <span>{item.location}</span>}
-        </div>
+        <PriceMeta
+          price={item.price}
+          surface={item.surface}
+          rooms={item.rooms}
+          location={item.location}
+          kind={item.kind}
+          financing={financing}
+        />
         {item.reasons && <div className="note">{item.reasons}</div>}
+        <ScoreDetails details={item.scoreDetails} />
+        <div className="card-date">
+          Trouvé le {new Date(item.createdAt).toLocaleDateString("fr-FR")}
+        </div>
         <div className="actions">
-          <a href={item.url} target="_blank" rel="noreferrer">
-            Voir l&apos;annonce →
-          </a>
+          <form action={likeCandidate}>
+            <input type="hidden" name="id" value={item.id} />
+            <button
+              className="like small"
+              type="submit"
+              title="Ajoute l'annonce à Mes annonces : la routine l'analysera pour affiner ton profil"
+            >
+              ♥ J&apos;aime
+            </button>
+          </form>
           <div className="btn-group">
             <form action={deleteCandidate}>
               <input type="hidden" name="id" value={item.id} />
@@ -59,7 +71,10 @@ function Card({ item }: { item: Candidate }) {
                 Retirer
               </button>
             </form>
-            <form action={excludeCandidate}>
+            <ConfirmForm
+              action={excludeCandidate}
+              confirmText="Exclure définitivement cette annonce ? Elle ne sera plus jamais proposée (réintégrable depuis la page Exclusions)."
+            >
               <input type="hidden" name="id" value={item.id} />
               <button
                 className="danger small"
@@ -68,7 +83,7 @@ function Card({ item }: { item: Candidate }) {
               >
                 Exclure
               </button>
-            </form>
+            </ConfirmForm>
           </div>
         </div>
       </div>
@@ -79,19 +94,36 @@ function Card({ item }: { item: Candidate }) {
 export default async function Candidats({
   searchParams,
 }: {
-  searchParams: Promise<{ kind?: string }>;
+  searchParams: Promise<Record<string, string | string[] | undefined>>;
 }) {
-  const { kind: kindParam } = await searchParams;
-  const kind: Kind = kindParam === "location" ? "location" : "achat";
+  const params = await searchParams;
+  const kind: Kind = params.kind === "location" ? "location" : "achat";
+  const filters = readFilters(params);
 
-  // Tous les candidats accumulés, classés par score puis par date.
-  const all = await db
-    .select()
-    .from(candidates)
-    .orderBy(desc(candidates.score), desc(candidates.createdAt));
-  const rows = all.filter((r) => r.kind === kind);
+  const [all, lastRuns, achatProfile] = await Promise.all([
+    db
+      .select()
+      .from(candidates)
+      .orderBy(desc(candidates.score), desc(candidates.createdAt)),
+    db.select().from(runs).orderBy(desc(runs.createdAt)).limit(1),
+    loadProfile("achat"),
+  ]);
+  const ofKind = all.filter((r) => r.kind === kind);
   const countAchat = all.filter((r) => r.kind === "achat").length;
   const countLocation = all.length - countAchat;
+
+  // Dernier passage : le runId du candidat le plus récent (tous types
+  // confondus — la routine envoie achat et location dans le même passage).
+  const newest = all.reduce<Candidate | null>(
+    (acc, r) => (!acc || r.createdAt > acc.createdAt ? r : acc),
+    null
+  );
+  const latestRunId = newest?.runId ?? null;
+  const lastRunDate = lastRuns[0]?.createdAt ?? newest?.createdAt ?? null;
+  const newCount = ofKind.filter((r) => r.runId === latestRunId).length;
+
+  const rows = sortRows(filterRows(ofKind, filters), filters.sort, "score");
+  const sources = [...new Set(ofKind.map((r) => r.source))].sort();
 
   return (
     <>
@@ -101,6 +133,7 @@ export default async function Candidats({
           Candidats trouvés
           <span className="count">
             {rows.length} annonce{rows.length > 1 ? "s" : ""} en {kind}
+            {newCount > 0 && ` · ${newCount} nouvelle${newCount > 1 ? "s" : ""}`}
           </span>
         </h1>
         <div className="tabs">
@@ -119,20 +152,41 @@ export default async function Candidats({
         </div>
       </div>
       <p className="page-sub">
-        « Retirer » enlève simplement le candidat ; « Exclure » le met en liste
-        noire pour qu&apos;il ne soit plus jamais reproposé par la routine.
+        {lastRunDate && (
+          <>
+            Dernier passage de la routine le{" "}
+            <strong>{new Date(lastRunDate).toLocaleString("fr-FR")}</strong> ·{" "}
+            <a href="/historique">historique des passages</a>
+            <br />
+          </>
+        )}
+        « ♥ J&apos;aime » ajoute le candidat à tes annonces (il nourrit le
+        profil) ; « Retirer » l&apos;enlève simplement ; « Exclure » le met en
+        liste noire pour qu&apos;il ne soit plus jamais reproposé.
       </p>
       <div className="container">
+        <FilterBar sources={sources} showScoreSort />
         {rows.length === 0 ? (
           <div className="empty">
-            Aucun candidat {kind} pour l&apos;instant. La routine{" "}
-            <code>recherche-immo</code> produit une liste achat et une liste
-            location à chaque passage.
+            {ofKind.length > 0 ? (
+              <>Aucun candidat ne correspond à ces filtres.</>
+            ) : (
+              <>
+                Aucun candidat {kind} pour l&apos;instant. La routine{" "}
+                <code>recherche-immo</code> produit une liste achat et une liste
+                location à chaque passage.
+              </>
+            )}
           </div>
         ) : (
           <div className="grid">
             {rows.map((item) => (
-              <Card key={item.id} item={item} />
+              <Card
+                key={item.id}
+                item={item}
+                isNew={item.runId === latestRunId}
+                financing={achatProfile?.financing}
+              />
             ))}
           </div>
         )}
