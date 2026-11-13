@@ -14,14 +14,28 @@ recherche suffit souvent à juger la pertinence.
 - **Portails bloqués / JS** : SeLoger, Bien'ici, PAP, Zimo, SuperImmo bloquent
   le fetch (403/429) ou se chargent en JavaScript → on ne peut **ni vérifier la
   disponibilité ni lire le contenu**. Utiles pour repérer, pas pour confirmer.
-- **Agrégateurs lisibles (à privilégier)** : **lesiteimmo.com** est
-  récupérable par WebFetch — sa page de recherche `…/louer/maison-jardin/<dpt>`
-  liste des annonces **à jour** avec leurs **liens directs**, et ses pages de
-  détail sont lisibles (on peut confirmer pierre/poutres/jardin/cuisine). C'est
-  la source la plus sûre pour produire des candidats **vivants et vérifiés**.
-  Teste aussi vizzit.fr, paruvendu.fr, locservice.fr comme sources lisibles.
-- **Règle** : un bon candidat = lien **direct**, **vérifié actif**, et idéalement
-  caractéristiques **confirmées** en lisant la page. Sinon, marque « à confirmer ».
+- **Sources lisibles (à privilégier, et à combiner : 60 % d'une liste au plus
+  pour une même source)** :
+  - **lesiteimmo.com** — agrégateur, la plus productive. Pages de liste par
+    département : `https://www.lesiteimmo.com/acheter/maison/<nom-du-dpt>-<n°>`
+    ou `…/louer/maison/<nom-du-dpt>-<n°>` (ex. `…/acheter/maison/lot-et-garonne-47`,
+    `…/louer/maison/dordogne-24`) ; variantes thématiques utiles :
+    `maison-caractere`, `maison-belle-vue`, `maison-jardin`, `maison-calme`.
+    L'ancien format `…/<dpt>` seul renvoie 404. Fiches de détail lisibles
+    (traits, date de publication, photo). Un 410 = annonce retirée.
+  - **french-property.com** (`/fr/bien-a-vendre/<id>`) — agences du Sud-Ouest,
+    beaucoup de bâti ancien en pierre ; fiches lisibles. Méfie-toi des fiches
+    « Cette annonce a été supprimée par l'agence ».
+  - **beauxvillages.com** — maisons de caractère Sud-Ouest, fiches lisibles.
+  - **leggett-immo.com** — agence spécialisée bâti ancien ; les liens
+    `…/printfr_pdf/…` sont des PDF : cherche la fiche HTML correspondante.
+  - **locservice.fr** (location entre particuliers), paruvendu.fr, vizzit.fr :
+    à tester selon les jours.
+  - Bloquent la lecture (403) : optimhome.com, capifrance.fr — utiles pour
+    repérer seulement.
+- **Règle** : un bon candidat = lien **direct**, **vérifié actif**, et
+  caractéristiques **confirmées** en lisant la page. Sinon, ses traits sont
+  « à confirmer » et `reasons` commence par « Non vérifié : ».
 
 ## Portails à couvrir (France)
 
@@ -60,6 +74,8 @@ Spécialisés location (pour la liste location) :
 Selon le profil (haut de gamme, rural, neuf) :
 - bellesdemeures.com, lux-residence.com (prestige)
 - green-acres.fr, proprietesrurales.com (campagne / propriétés)
+- french-property.com, beauxvillages.com, leggett-immo.com (bâti ancien,
+  Sud-Ouest, lisibles)
 - bienici.com et programmes-immobiliers (neuf)
 
 > Adapte la liste au profil : inutile d'interroger les sites prestige si le

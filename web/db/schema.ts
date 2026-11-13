@@ -123,10 +123,26 @@ export const blacklist = pgTable("blacklist", {
   title: text("title"),
   source: text("source"),
   reason: text("reason"),
+  // Ce que l'on savait du bien au moment de l'exclusion (type, prix, lieu,
+  // surface, score…) : la routine s'en sert comme exemple négatif.
+  snapshot: jsonb("snapshot").$type<BlacklistSnapshot>(),
   createdAt: timestamp("created_at", { withTimezone: true })
     .defaultNow()
     .notNull(),
 });
+
+export type BlacklistSnapshot = {
+  kind?: Kind;
+  price?: number | null;
+  location?: string | null;
+  surface?: string | null;
+  rooms?: string | null;
+  score?: number | null;
+  reasons?: string | null;
+  scoreDetails?: ScorePoint[] | null;
+  notes?: string | null;
+  dislikes?: string | null;
+};
 
 export type BlacklistEntry = typeof blacklist.$inferSelect;
 export type NewBlacklistEntry = typeof blacklist.$inferInsert;

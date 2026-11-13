@@ -56,13 +56,37 @@ toi qu'elles sont définies dans l'environnement d'exécution.
 
 ## Déroulé
 
-### Étape 0 — Récupérer les annonces aimées et la liste noire
+### Étape 0 — Vérifier la base, puis récupérer annonces, liste noire et déjà-vus
 
-Exécute les scripts (depuis le dossier du skill) :
+**a) Base intacte ?** Le repo garde une sauvegarde de l'état dans `etat/`
+(profils, liste noire, annonces aimées), réécrite à chaque passage (Étape 4e).
+Commence par :
+
+```bash
+node scripts/restore_state.mjs
+```
+
+Il imprime un diagnostic JSON :
+- `baseReinitialisee: true` (les deux profils ont disparu alors que la
+  sauvegarde en contient) → **restaure à l'identique** avec
+  `node scripts/restore_state.mjs --apply`, puis continue normalement. Signale-le
+  **en tête du rapport** (et pas seulement dans « Limites »). Ne reconstruis
+  jamais un profil à partir du texte d'un ancien rapport : la sauvegarde est la
+  seule source fiable.
+- `suspects` non vide (ex. liste noire vide en base mais pleine dans la
+  sauvegarde, profils présents) → ne restaure rien (l'utilisateur a pu vider sa
+  liste), mais mentionne-le en tête du rapport pour qu'il vérifie.
+- Sinon, rien à faire.
+
+Si `etat/` n'existe pas encore et que les profils sont `null`, c'est un vrai
+premier passage : pars d'un profil vide.
+
+**b) Données de travail** (depuis le dossier du skill) :
 
 ```bash
 node scripts/fetch_listings.mjs
 node scripts/fetch_blacklist.mjs
+node scripts/fetch_known.mjs
 ```
 
 `fetch_listings.mjs` imprime en JSON toutes les annonces sauvegardées. Chaque
@@ -77,6 +101,15 @@ qu'il faut d'abord sauvegarder des annonces depuis l'extension.
 exclues définitivement** depuis le site. Garde `urls` sous la main : **aucun
 candidat ne doit porter une de ces URLs** (l'API les rejettera de toute façon,
 mais ne gaspille pas de place dans tes listes avec des candidats morts-nés).
+Chaque entrée porte aussi `reason` (le « pourquoi » saisi par l'utilisateur
+quand il exclut, sinon un texte générique) et `snapshot` (type, prix, lieu,
+surface, score et détail du score au moment de l'exclusion) : ce sont des
+**exemples négatifs**, exploités à l'Étape 1.
+
+`fetch_known.mjs` imprime `{ favoris, candidats, exclus }` : tout ce que le site
+connaît déjà. Un candidat dont l'URL est déjà dans `candidats` ou `favoris` est
+ignoré par l'API à l'envoi : **ne le repropose pas**, consacre ta recherche aux
+biens nouveaux.
 
 ### Étape 1 — Charger et affiner les DEUX profils
 
@@ -156,16 +189,41 @@ d'importance (1-5, 5 = essentiel)**. Le skill doit composer avec :
    `preferences`, `repulsions`) en intégrant ces nouveautés : augmente le
    `weight` des thèmes confirmés (non épinglés), ajoute les thèmes nouveaux,
    élargis prudemment les fourchettes. **Ne supprime pas** ce qui existe sans
-   raison ; tu affines, tu ne réinitialises pas.
+   raison ; tu affines, tu ne réinitialises pas. Un poids ne monte que
+   lorsqu'une **nouvelle annonce aimée** le confirme : un passage sans annonce
+   nouvelle ne change aucun poids.
+3bis. **Garde un profil discriminant** (sinon tous les biens finissent au même
+   score) :
+   - **5 préférences à 5/5 au plus**, épinglées comprises. Au-delà, redescends
+     à 4 les traits non épinglés les moins confirmés (le moins d'annonces
+     aimées / de photos qui les portent).
+   - **Fusionne les thèmes quasi identiques** en un seul (garde le libellé le
+     plus court et clair, le poids le plus haut ; jamais pour un trait épinglé).
+   - Libellés **courts** (≤ 8 mots) : les détails (exemples de matériaux,
+     régions…) n'ont pas leur place dans `theme`.
+   - **15 localisations au plus** : regroupe par département ou région.
+3ter. **Apprends des exclusions** (`entries` de la liste noire, Étape 0) :
+   - une `reason` écrite par l'utilisateur est un signal fort : transforme-la
+     en répulsion (ou renforce la répulsion existante qui y correspond) ;
+   - sans raison, cherche ce que les biens exclus d'un même `kind` ont en
+     commun dans leur `snapshot` (zone, fourchette de prix, type, trait qui
+     portait le score) : un motif qui revient sur **3 exclusions ou plus**
+     devient une répulsion de poids 2, non rédhibitoire. Une exclusion isolée
+     sans raison ne prouve rien : ignore-la.
+   - Ne touche jamais aux traits épinglés pour autant.
 4. **Si une annonce aimée a disparu** de la liste (supprimée par
    l'utilisateur), tu peux retirer son entrée du cache et atténuer les poids
-   qu'elle portait (jamais ceux des traits épinglés).
+   qu'elle portait (jamais ceux des traits épinglés). Exception : si **toutes**
+   les annonces ont disparu d'un coup, c'est probablement une perte de données
+   (voir Étape 0a) : ne touche ni au cache ni aux poids.
 5. **Si un `kind` n'a ni annonces aimées ni profil existant**, ne l'invente
    pas : saute sa recherche et note-le dans « Limites » du rapport. S'il a un
    profil (édité à la main par l'utilisateur) mais aucune annonce aimée, la
    recherche se fait sur la seule base du profil — c'est un cas prévu.
 
-Les deux profils seront **réécrits en base** en fin d'exécution (Étape 4).
+Garde une copie **non modifiée** de chaque profil chargé (ex.
+`profil-achat-avant.json`) : elle sert au contrôle de l'Étape 4a. Les deux
+profils seront **réécrits en base** en fin d'exécution (Étape 4).
 
 À partir des annonces (et du profil chargé), le profil **explicite** que tu
 afficheras dans le rapport contient :
@@ -256,7 +314,9 @@ mots-clés changent : « à vendre » vs « à louer », budget vs loyer) :
    `/recherche/`, `/immobilier/<dpt>`, `/cl/`, `/louer/...` sans id, listes
    départementales. Le champ `url` d'un candidat **doit** pointer vers une
    annonce précise et cliquable (piège n°1 à éviter).
-4. **Écarte immédiatement toute URL présente dans la liste noire** (Étape 0).
+4. **Écarte immédiatement toute URL présente dans la liste noire** (Étape 0),
+   ainsi que celles déjà connues du site (`candidats` et `favoris` de
+   `fetch_known.mjs`).
 5. **Méfie-toi des liens périmés.** L'index de recherche renvoie souvent des
    annonces retirées. Les gros portails (SeLoger, Bien'ici, PAP) **bloquent le
    fetch ou sont en JS pur** : impossible d'y vérifier qu'une annonce est
@@ -265,11 +325,19 @@ mots-clés changent : « à vendre » vs « à louer », budget vs loyer) :
    de recherche récupérable par `WebFetch`, **liens d'annonces directs et à
    jour**, pages de détail lisibles — de quoi **confirmer les préférences** et
    **récupérer l'URL de la photo principale** pour le champ `photos`.
-7. **Vérifie chaque candidat** en lisant sa page quand c'est possible : écarte
-   ceux marqués « plus disponible ». Si la source bloque, n'invente pas —
-   marque la caractéristique « à confirmer » dans `reasons`.
+7. **Vérifie TOUS les candidats retenus**, pas seulement le haut de liste : lis
+   la page de chacun (une lecture coûte peu sur les sources lisibles), écarte
+   ceux marqués « plus disponible » / vendu / loué ou qui renvoient 404-410,
+   relève les traits réellement présents et l'URL de la photo principale. Si la
+   source bloque, n'invente pas : le candidat reste possible mais ses traits
+   sont « à confirmer », et `reasons` commence par « Non vérifié : ».
 8. Privilégie la **largeur** (plusieurs zones/portails) et **dédoublonne**
    (voir `references/sites.md`).
+9. **Diversifie les sources** : une même source ne doit pas fournir plus de
+   **60 % d'une liste**. Interroge au moins **trois sources lisibles** par
+   campagne (voir `references/sites.md` : lesiteimmo, french-property,
+   leggett-immo, beauxvillages, locservice…). Si la diversité est impossible ce
+   jour-là, dis-le dans « Limites » avec les sources essayées.
 
 Vise un vivier de ~30-60 candidats bruts **par liste** avant scoring. Si un
 `kind` est sauté (pas de profil, pas d'annonces), dis-le dans le rapport au
@@ -278,36 +346,56 @@ lieu de forcer une liste vide de sens.
 ### Étape 3 — Scorer et classer (chaque liste séparément)
 
 D'abord des **filtres éliminatoires** (ne garde que les biens plausibles) :
-- **URL en liste noire** → écarter, sans exception ;
+- **URL en liste noire ou déjà connue du site** → écarter, sans exception ;
 - **URL non directe** (page d'index/recherche) → écarter ;
 - localisation : **pas un filtre par défaut** — n'écarte sur la zone que si
   l'utilisateur a fixé une région précise (profil ou `instructions`) ;
-- prix très au-dessus du budget max + tolérance → écarter ;
-- type de bien différent de la cible → écarter ;
-- **défaut rédhibitoire présent** (répulsion `redhibitory: true`) → écarter.
+- type de bien différent de la cible → écarter.
 
-Puis un **score 0-100** pour classer, pondéré ainsi (le qualitatif domine,
-volontairement) :
-- **Préférences qualitatives matchées : ~50 pts** — proportionnellement au
-  `weight` (1-5) de chaque trait ; un trait `weight: 5` (essentiel) domine.
-- Adéquation surface / pièces : ~20 pts.
-- Budget (sous le max sans être suspectement bas) : ~15 pts.
-- Localisation précise (zone exactement recherchée) : ~15 pts.
-- **Malus répulsions : jusqu'à −40 pts** — proportionnel au `weight` des
-  critères négatifs (non rédhibitoires) présents.
+Le prix hors budget (+10 %) et les défauts rédhibitoires confirmés sont
+éliminés par le script de score ci-dessous.
 
-Pour chaque candidat retenu, rédige un `reasons` court (1-2 phrases) **citant
-les préférences précises** qui matchent — et, le cas échéant, **signale les
-défauts évités**. Si un candidat présente un défaut mineur connu, mentionne-le
-honnêtement. Garde le **top 15-25 par liste**.
+**Le score n'est pas estimé à la main : il est calculé par `score.mjs`**, pour
+qu'il soit stable d'un passage à l'autre et que son détail tombe juste. Ton
+travail est le **jugement** : pour chaque candidat, ajoute un champ `match` au
+JSON du lot :
 
-Joins aussi le **détail du score** dans `scoreDetails` : une entrée par
-composante, `{ "label": "<trait ou critère>", "points": <n> }`, points
-négatifs pour les malus. Utilise le libellé exact du trait du profil
-(ex. `"pierre apparente"`) pour que l'utilisateur relie chaque ligne à sa page
-`/profil`. Le site affiche ce détail sous chaque candidat (« Pourquoi ce
-score ? ») et dans le comparateur. La somme des points doit retomber à peu près
-sur le `score`.
+```json
+"match": {
+  "preferences": [
+    { "trait": "pierre apparente", "status": "confirmé" },
+    { "trait": "garage", "status": "à confirmer" }
+  ],
+  "repulsions": [ { "trait": "route passante", "status": "confirmé" } ],
+  "location": "exacte"
+}
+```
+
+- `trait` = le `theme` **exact** du profil du même `kind` (le script refuse un
+  libellé inconnu et liste les fautifs : corrige et relance).
+- `status` : `"confirmé"` si tu l'as lu sur la page de l'annonce ou vu sur ses
+  photos, `"à confirmer"` s'il n'est que probable (titre, snippet, page non
+  lisible).
+- `location` : `"exacte"` (zone recherchée, ou profil sans restriction de
+  zone), `"proche"`, `"hors zone"`.
+
+Puis lance, pour chaque liste :
+
+```bash
+node scripts/score.mjs <profil-affiné.json> <candidats.json>
+```
+
+Le script remplit `score` et `scoreDetails` (préférences : poids × 3, ou × 1,5
+si « à confirmer », plafond 50 ; surface/pièces 20 ; budget 15 ; localisation
+15 ; répulsions jusqu'à −40), retire `match`, trie par score et retire les
+éliminés (listés dans `excluded`, à mentionner dans « Limites »). Les libellés
+de `scoreDetails` sont ceux du profil : le site les affiche sous chaque
+candidat (« Pourquoi ce score ? ») et dans le comparateur.
+
+Rédige ensuite, pour chaque candidat, un `reasons` court (1-2 phrases) **citant
+les préférences précises** qui matchent — et, le cas échéant, **les défauts
+évités**. Mentionne honnêtement un défaut mineur connu. Garde le **top 15-25
+par liste**.
 
 Un candidat que l'utilisateur a « aimé » sur le site (bouton ♥) est transféré
 dans ses annonces sauvegardées : il réapparaît donc à l'Étape 0 comme une
@@ -320,23 +408,24 @@ Génère **un seul `runId`** (UUID) pour toute l'exécution — il est partagé 
 les deux listes.
 
 **a) Profils mis à jour** : écris chaque profil affiné dans un JSON temporaire
-(avec `updatedAt` à la date du jour) puis enregistre-les :
+(avec `updatedAt` à la date du jour), **contrôle-le**, puis enregistre-le :
 
 ```bash
-node scripts/save_profile.mjs achat <chemin-profil-achat.json>
-node scripts/save_profile.mjs location <chemin-profil-location.json>
+node scripts/check_profile.mjs <profil-achat-avant.json> <profil-achat.json>
+node scripts/save_profile.mjs achat <profil-achat.json>
+node scripts/check_profile.mjs <profil-location-avant.json> <profil-location.json>
+node scripts/save_profile.mjs location <profil-location.json>
 ```
 
-C'est la **mémoire** du skill ; les profils restent éditables sur `/profil`.
-Rappel : les traits `pinned` et le champ `instructions` doivent y figurer
-**inchangés**.
+`check_profile.mjs` sort en erreur si un trait épinglé, les consignes ou le
+plan de financement ont bougé : corrige avant d'enregistrer. Ses
+avertissements (trop de 5/5, thèmes à fusionner, trop de zones) se corrigent
+aussi, sauf raison que tu expliques dans « Limites ». C'est la **mémoire** du
+skill ; les profils restent éditables sur `/profil`.
 
 **b) Rapport Markdown** dans le repo, fichier daté `resultats/AAAA-MM-JJ.md`
 (crée le dossier `resultats/` au besoin), suivant le modèle ci-dessous — avec
-**une section Achat et une section Location**. Si tu commits (cas d'une routine
-sur un repo), fais-le **directement sur la branche `main`** (`git add
-resultats/ && git commit && git push origin main`) — **ne crée pas de branche
-ni de pull request**.
+**une section Achat et une section Location**. Il est commité à l'étape e.
 
 **c) Envoi sur le site** : écris un (ou deux) JSON temporaire(s) puis :
 
@@ -372,13 +461,50 @@ node scripts/post_checks.mjs <chemin-du-json>
 
 Le site garde l'historique des prix et affiche les baisses (↓ x %) et les
 annonces disparues sur `/`. Mentionne les baisses de prix et les disparitions
-dans le rapport Markdown (section « Veille »). Une annonce disparue reste
-une bonne source d'apprentissage pour le profil : continue de l'analyser.
+dans le rapport Markdown (section « Veille »), ainsi que le nombre d'annonces
+que tu n'as **pas pu contrôler** (portails qui bloquent la lecture) : la veille
+ne couvre que ce qui est lisible. Une annonce disparue reste une bonne source
+d'apprentissage pour le profil : continue de l'analyser.
+
+**e) Sauvegarde de l'état et commit** — toujours en dernier, après
+l'enregistrement des profils :
+
+```bash
+node scripts/snapshot_state.mjs
+```
+
+Il réécrit `etat/` à la racine du repo (profils, liste noire, annonces
+aimées). Il ne remplace jamais une sauvegarde non vide par une base vide :
+s'il indique « CONSERVÉ », signale-le dans le rapport (base peut-être vidée).
+
+Puis commite **le rapport et `etat/` directement sur `main`**, depuis la
+racine du repo — pas de branche `claude/…`, pas de pull request :
+
+```bash
+git fetch origin main
+git checkout -B main origin/main
+git add resultats/ etat/
+git commit -m "Rapport RechercheImmo AAAA-MM-JJ (achat N + location M)"
+git push origin main
+```
+
+Les fichiers non suivis (rapport, `etat/`) survivent au `checkout`. N'ajoute
+pas d'option d'identité (`-c user.name=…`, `--author`) : garde celle de
+l'environnement. Si le push est refusé (conflit), fais `git pull --rebase
+origin main` puis un seul nouvel essai. S'il échoue encore, ou si l'outil
+refuse de pousser sur `main`, pousse sur la branche courante et écris-le en
+tête du rapport et dans ton message final, avec le nom de la branche.
 
 ## Modèle de rapport Markdown
 
 ```markdown
 # Recherche immobilière — <date>
+
+> <seulement si besoin : base restaurée depuis etat/, éléments suspects,
+> commit poussé ailleurs que sur main>
+
+- **Nouveautés** : <n> achat + <m> location jamais proposés auparavant
+- **Vérifiés en ligne** : <x>/<n> achat, <y>/<m> location
 
 ## 🏠 Achat
 
@@ -412,14 +538,22 @@ une bonne source d'apprentissage pour le profil : continue de l'analyser.
 (ou « aucun changement »)
 
 ## Sources interrogées
-<liste des portails effectivement requêtés, par liste>
+<liste des portails effectivement requêtés, par liste, avec la part de chaque
+source dans la liste finale>
+
+## Ce que la routine a appris
+<répulsions ajoutées ou renforcées à partir des exclusions, poids modifiés,
+thèmes fusionnés — ou « rien de nouveau »>
 
 ## Limites
-<pages bloquées, infos manquantes, kind sauté et pourquoi, candidats exclus
-par la liste noire…>
+<pages bloquées, infos manquantes, kind sauté et pourquoi, candidats éliminés
+par score.mjs, avertissements de check_profile laissés…>
 ```
 
 ## Modèle de JSON pour post_candidates.mjs
+
+Avant `score.mjs`, chaque candidat porte `match` (voir Étape 3) et pas encore
+de `score` ; après, il ressemble à ceci :
 
 ```json
 {
@@ -435,15 +569,15 @@ par la liste noire…>
       "surface": "120 m²",
       "rooms": "5 pièces, 3 chambres",
       "photos": ["https://..."],
-      "score": 87,
+      "score": 71,
       "reasons": "Pierre apparente et jardin arboré, tes deux préférences essentielles ; aucun défaut rédhibitoire.",
       "scoreDetails": [
-        { "label": "pierre apparente", "points": 24 },
-        { "label": "jardin arboré", "points": 20 },
-        { "label": "surface / pièces", "points": 18 },
-        { "label": "budget", "points": 14 },
+        { "label": "pierre apparente", "points": 15 },
+        { "label": "jardin arboré", "points": 12 },
+        { "label": "surface / pièces", "points": 20 },
+        { "label": "budget", "points": 15 },
         { "label": "localisation", "points": 15 },
-        { "label": "route passante", "points": -4 }
+        { "label": "route passante", "points": -6 }
       ]
     }
   ]

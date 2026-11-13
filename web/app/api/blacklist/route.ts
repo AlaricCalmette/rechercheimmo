@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { desc, eq } from "drizzle-orm";
 import { db } from "@/lib/db";
-import { blacklist } from "@/db/schema";
+import { blacklist, type BlacklistSnapshot } from "@/db/schema";
 
 export const runtime = "nodejs";
 
@@ -51,6 +51,10 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "url is required" }, { status: 400, headers: CORS });
   }
   const toStr = (v: unknown) => (typeof v === "string" && v.length > 0 ? v : null);
+  const snapshot =
+    body.snapshot && typeof body.snapshot === "object" && !Array.isArray(body.snapshot)
+      ? (body.snapshot as BlacklistSnapshot)
+      : null;
   await db
     .insert(blacklist)
     .values({
@@ -58,6 +62,7 @@ export async function POST(req: NextRequest) {
       title: toStr(body.title),
       source: toStr(body.source),
       reason: toStr(body.reason),
+      snapshot,
     })
     .onConflictDoNothing({ target: blacklist.url });
   return NextResponse.json({ ok: true, url }, { status: 201, headers: CORS });

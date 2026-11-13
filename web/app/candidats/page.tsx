@@ -73,6 +73,7 @@ function Card({
             </form>
             <ConfirmForm
               action={excludeCandidate}
+              askReason
               confirmText="Exclure définitivement cette annonce ? Elle ne sera plus jamais proposée (réintégrable depuis la page Exclusions)."
             >
               <input type="hidden" name="id" value={item.id} />

@@ -874,6 +874,11 @@ button.primary:hover {
   white-space: nowrap;
 }
 
+.bl-row .bl-reason {
+  font-size: 13px;
+  font-style: italic;
+}
+
 .bl-row .bl-date {
   font-size: 12px;
   color: var(--muted);

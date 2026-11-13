@@ -180,6 +180,13 @@ export async function deleteCandidate(formData: FormData) {
   }
 }
 
+// Raison d'exclusion saisie par l'utilisateur (facultative) : la routine la
+// lit pour en tirer des répulsions.
+function exclusionReason(formData: FormData): string | null {
+  const reason = String(formData.get("reason") ?? "").trim().slice(0, 500);
+  return reason.length > 0 ? reason : null;
+}
+
 // Exclusion définitive d'un candidat : blacklist (l'URL ne reviendra plus)
 // puis suppression de la liste courante.
 export async function excludeCandidate(formData: FormData) {
@@ -194,7 +201,17 @@ export async function excludeCandidate(formData: FormData) {
       url: row.url,
       title: row.title,
       source: row.source,
-      reason: "exclu depuis la page candidats",
+      reason: exclusionReason(formData) ?? "exclu depuis la page candidats",
+      snapshot: {
+        kind: row.kind,
+        price: row.price,
+        location: row.location,
+        surface: row.surface,
+        rooms: row.rooms,
+        score: row.score,
+        reasons: row.reasons,
+        scoreDetails: row.scoreDetails,
+      },
     })
     .onConflictDoNothing({ target: blacklist.url });
   await db.delete(candidates).where(eq(candidates.id, id));
@@ -216,7 +233,16 @@ export async function excludeListing(formData: FormData) {
       url: row.url,
       title: row.title,
       source: row.source,
-      reason: "annonce sauvegardée exclue",
+      reason: exclusionReason(formData) ?? "annonce sauvegardée exclue",
+      snapshot: {
+        kind: row.kind,
+        price: row.price,
+        location: row.location,
+        surface: row.surface,
+        rooms: row.rooms,
+        notes: row.notes,
+        dislikes: row.dislikes,
+      },
     })
     .onConflictDoNothing({ target: blacklist.url });
   await db.delete(listings).where(eq(listings.id, id));

@@ -111,6 +111,7 @@ function Card({
             </form>
             <ConfirmForm
               action={excludeListing}
+              askReason
               confirmText="Exclure définitivement cette annonce ? Elle est retirée de tes favoris et ne sera plus jamais proposée."
             >
               <input type="hidden" name="id" value={item.id} />

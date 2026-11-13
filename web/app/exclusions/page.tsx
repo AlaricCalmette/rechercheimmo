@@ -6,6 +6,12 @@ import { Nav } from "../Nav";
 
 export const dynamic = "force-dynamic";
 
+// Raisons posées automatiquement quand l'utilisateur n'a rien écrit.
+const DEFAULT_REASONS = new Set([
+  "exclu depuis la page candidats",
+  "annonce sauvegardée exclue",
+]);
+
 export default async function Exclusions() {
   const rows = await db.select().from(blacklist).orderBy(desc(blacklist.createdAt));
 
@@ -45,6 +51,9 @@ export default async function Exclusions() {
                   >
                     {r.url}
                   </a>
+                  {r.reason && !DEFAULT_REASONS.has(r.reason) && (
+                    <span className="bl-reason">Pourquoi : {r.reason}</span>
+                  )}
                 </div>
                 {r.source && <span className="badge">{r.source}</span>}
                 <span className="bl-date">
